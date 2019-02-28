@@ -7,7 +7,7 @@
     <ProjectGuid>{AAE442BB-5844-4935-AC5F-B1E25AF6784C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SalesEntity</RootNamespace>
+    <RootNamespace>NAlex.SalesEntity</RootNamespace>
     <AssemblyName>SalesEntity</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -48,6 +48,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entity\Customer.cs" />
+    <Compile Include="Entity\ErrorFile.cs" />
+    <Compile Include="Entity\Product.cs" />
+    <Compile Include="Entity\Sale.cs" />
+    <Compile Include="Entity\SourceFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
