@@ -10,7 +10,9 @@ namespace Sales.SalesEntity.Entity
     public class SalesDbContext : DbContext
     {
         public SalesDbContext() : base("Sales")
-        {            
+        {
+            // for tests
+            Database.SetInitializer(new DropCreateDatabaseAlways<SalesDbContext>());
         }
 
         public DbSet<SourceFile> SourceFiles { get; set; }

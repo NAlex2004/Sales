@@ -20,7 +20,7 @@ namespace Sales.DAL.Database
         }
 
         public virtual TEntity Add(TEntity entity)
-        {
+        {            
             return dbContext.Set<TEntity>().Add(entity);
         }
 

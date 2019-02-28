@@ -29,16 +29,16 @@ namespace Sales.Storage.Management
             SourceFile sourceFile = await unitOfWork.SourceFiles.Get(file => file.FileName.Equals(saleData.SourceFileName)).FirstOrDefaultAsync();
 
             bool addOrUpdateResult = false;
-            if (sourceFile != null)
-            {
-                addOrUpdateResult = await UpdateSaleData(saleData, sourceFile);
-            }
-            else
-            {
-                
-            }
+            addOrUpdateResult = sourceFile == null
+                ? await AddSaleDataAsync(saleData)
+                : await UpdateSaleData(saleData, sourceFile);
 
             return addOrUpdateResult;
+        }
+
+        protected virtual async Task<bool> AddSaleDataAsync(SaleDataDto saleData)
+        {
+            throw new NotImplementedException();
         }
 
         protected virtual async Task<bool> UpdateSaleData(SaleDataDto saleData, SourceFile sourceFile)

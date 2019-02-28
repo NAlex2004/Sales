@@ -13,5 +13,16 @@ namespace Sales.DAL.Database
         public ProductsDbRepository(DbContext dbContext) : base(dbContext)
         {
         }
+
+        public override Product Add(Product entity)
+        {
+            Product existing = Get(product => product.ProductName.Equals(entity.ProductName)).FirstOrDefault();
+            if (existing != null)
+            {
+                return existing;
+            }
+
+            return base.Add(entity);
+        }
     }
 }
