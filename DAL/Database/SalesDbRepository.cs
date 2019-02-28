@@ -12,6 +12,6 @@ namespace Sales.DAL.Database
     {
         public SalesDbRepository(DbContext dbContext) : base(dbContext)
         {
-        }
+        }        
     }
 }

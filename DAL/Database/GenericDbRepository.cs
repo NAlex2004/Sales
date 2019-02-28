@@ -26,7 +26,14 @@ namespace Sales.DAL.Database
 
         public virtual IEnumerable<TEntity> AddRange(IEnumerable<TEntity> entities)
         {
-            return dbContext.Set<TEntity>().AddRange(entities);
+            // Not using dbContext.Set<TEntity>().AddRange because of overriding Add method of repository. Adding product with same name just return existing, for example
+            List<TEntity> added = new List<TEntity>();
+            foreach(var entity in entities)
+            {
+                added.Add(Add(entity));
+            }
+
+            return added;
         }
 
         public virtual IEnumerable<TEntity> Delete(Expression<Func<TEntity, bool>> condition)

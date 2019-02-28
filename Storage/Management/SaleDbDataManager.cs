@@ -11,7 +11,7 @@ using Sales.DAL.Database;
 
 namespace Sales.Storage.Management
 {
-    public class SaleDbDataManager : ISalesDataManager, IDisposable
+    public partial class SaleDbDataManager : ISalesDataManager, IDisposable
     {
         protected ISalesUnitOfWork unitOfWork;
 
@@ -38,6 +38,7 @@ namespace Sales.Storage.Management
 
         protected virtual async Task<bool> AddSaleDataAsync(SaleDataDto saleData)
         {
+            
             throw new NotImplementedException();
         }
 

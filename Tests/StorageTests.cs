@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sales.Storage.Validation;
+using ExpressMapper;
+using ExpressMapper.Extensions;
+using Sales.SalesEntity.Entity;
+using Sales.Storage.DTO;
+using Sales.Storage.Management;
 
 namespace Tests
 {
@@ -28,6 +33,28 @@ namespace Tests
                 var validationResult = FileNameValidator.Validate(entry.Key);
                 Assert.AreEqual(entry.Value, validationResult.IsValid);
             }
+        }
+
+        [TestMethod]
+        public void MappingsTest()
+        {
+            SaleDto saleDto = new SaleDto()
+            {
+                CustomerName = "Customer",
+                ProductName = "Product",
+                SaleDate = DateTime.Now,
+                TotalSum = 111
+            };
+
+            Sale sale = SaleDbDataManager.Mappings.GetMapper().Map<SaleDto, Sale>(saleDto);
+
+            SaleDto mappedSale = SaleDbDataManager.Mappings.GetMapper().Map<Sale, SaleDto>(sale);
+
+            Assert.AreEqual(sale.Customer.CustomerName, saleDto.CustomerName);
+            Assert.AreEqual(sale.Product.ProductName, saleDto.ProductName);
+
+            Assert.AreEqual(sale.Customer.CustomerName, mappedSale.CustomerName);
+            Assert.AreEqual(sale.Product.ProductName, mappedSale.ProductName);
         }
     }
 }

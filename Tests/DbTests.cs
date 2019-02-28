@@ -2,6 +2,7 @@
 using Sales.DAL.Database;
 using Sales.DAL.Interfaces;
 using Sales.SalesEntity.Entity;
+using Sales.Storage.Management;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace Tests
         public void AddNewSaleWithNewProduct_AddsProduct()
         {
             using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new SalesDbContext()))
-            {
+            {                
                 SourceFile sourceFile = new SourceFile()
                 {
                     FileName = "shit"
@@ -58,7 +59,6 @@ namespace Tests
                     SaleDate = DateTime.UtcNow,
                     TotalSum = 122
                 };
-                
 
                 var added = unitOfWork.Sales.AddRange(new Sale[] { sale1, sale2 });
                 int res = unitOfWork.SaveChanges();
