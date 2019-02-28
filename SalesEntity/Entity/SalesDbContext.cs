@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.Entity;
 
-namespace NAlex.SalesEntity.Entity
+namespace Sales.SalesEntity.Entity
 {
     public class SalesDbContext : DbContext
     {

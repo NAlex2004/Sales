@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 
-namespace NAlex.SalesEntity.Entity
+namespace Sales.SalesEntity.Entity
 {
     public class SourceFile
     {

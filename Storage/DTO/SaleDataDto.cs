@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Storage.DTO
+namespace Sales.Storage.DTO
 {
     public class SaleDataDto
     {

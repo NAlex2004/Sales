@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NAlex.SalesEntity.Entity
+namespace Sales.SalesEntity.Entity
 {
     public class Customer
     {
