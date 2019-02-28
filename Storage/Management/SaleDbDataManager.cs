@@ -6,25 +6,27 @@ using System.Threading.Tasks;
 using System.Data.Entity;
 using Sales.SalesEntity.Entity;
 using Sales.Storage.DTO;
+using Sales.DAL.Interfaces;
+using Sales.DAL.Database;
 
 namespace Sales.Storage.Management
 {
     public class SaleDbDataManager : ISalesDataManager, IDisposable
     {
-        protected SalesDbContext dbContext;
+        protected ISalesUnitOfWork unitOfWork;
 
-        public SaleDbDataManager(SalesDbContext dbContext)
+        public SaleDbDataManager(ISalesUnitOfWork salesUnitOfWork)
         {
-            dbContext = dbContext ?? throw new ArgumentNullException();            
+            unitOfWork = unitOfWork ?? throw new ArgumentNullException();            
         }
 
-        public SaleDbDataManager() : this(new SalesDbContext())
-        {            
+        public SaleDbDataManager() : this(new SalesDbUnitOfWork(new SalesDbContext()))
+        {
         }
 
         public async Task<bool> AddOrUpdateSaleDataAsync(SaleDataDto saleData)
         {
-            SourceFile sourceFile = await dbContext.SourceFiles.FirstOrDefaultAsync(file => file.FileName.Equals(saleData.SourceFileName));
+            SourceFile sourceFile = await unitOfWork.SourceFiles.Get(file => file.FileName.Equals(saleData.SourceFileName)).FirstOrDefaultAsync();
 
             bool addOrUpdateResult = false;
             if (sourceFile != null)
@@ -33,7 +35,7 @@ namespace Sales.Storage.Management
             }
             else
             {
-
+                
             }
 
             return addOrUpdateResult;
@@ -53,9 +55,9 @@ namespace Sales.Storage.Management
             {
                 if (disposing)
                 {
-                    if (dbContext != null)
+                    if (unitOfWork != null)
                     {
-                        dbContext.Dispose();
+                        unitOfWork.Dispose();
                     }
                 }
                

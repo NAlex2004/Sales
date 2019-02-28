@@ -57,6 +57,10 @@
     <Compile Include="Validation\FileNameValidator.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DAL\DAL.csproj">
+      <Project>{c890064b-a5a5-44bc-9cc1-1e6ffb24add2}</Project>
+      <Name>DAL</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SalesEntity\SalesEntity.csproj">
       <Project>{aae442bb-5844-4935-ac5f-b1e25af6784c}</Project>
       <Name>SalesEntity</Name>

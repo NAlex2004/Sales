@@ -10,7 +10,7 @@ namespace Sales.SalesEntity.Entity
     public class SalesDbContext : DbContext
     {
         public SalesDbContext() : base("Sales")
-        {
+        {            
         }
 
         public DbSet<SourceFile> SourceFiles { get; set; }
