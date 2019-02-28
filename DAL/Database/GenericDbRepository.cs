@@ -37,7 +37,7 @@ namespace Sales.DAL.Database
         }
 
         public virtual IEnumerable<TEntity> Delete(Expression<Func<TEntity, bool>> condition)
-        {
+        {            
             var entitiesToRemove = Get(condition).ToArray();            
             return dbContext.Set<TEntity>().RemoveRange(entitiesToRemove);
         }
@@ -47,6 +47,20 @@ namespace Sales.DAL.Database
             return condition == null
                 ? dbContext.Set<TEntity>()
                 : dbContext.Set<TEntity>().Where(condition);
+        }
+
+        protected TEntity GetLocalEntity<TEntity>(Func<TEntity, bool> predicate) where TEntity: class
+        {            
+            TEntity localEntity = dbContext.Set<TEntity>().Local.FirstOrDefault(predicate);
+            if (localEntity != null)
+            {
+                if (dbContext.Entry(localEntity).State == EntityState.Deleted)
+                {
+                    dbContext.Entry(localEntity).State = EntityState.Unchanged;
+                }                
+            }
+
+            return localEntity;
         }
     }
 }

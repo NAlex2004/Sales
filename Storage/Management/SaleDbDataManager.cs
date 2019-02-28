@@ -8,6 +8,7 @@ using Sales.SalesEntity.Entity;
 using Sales.Storage.DTO;
 using Sales.DAL.Interfaces;
 using Sales.DAL.Database;
+using Sales.Storage.Validation;
 
 namespace Sales.Storage.Management
 {
@@ -26,14 +27,25 @@ namespace Sales.Storage.Management
 
         public async Task<bool> AddOrUpdateSaleDataAsync(SaleDataDto saleData)
         {
+            var validationResult = FileNameValidator.Validate(saleData.SourceFileName);
+            if (!validationResult.IsValid)
+            {
+                return false;
+            }
+
             SourceFile sourceFile = await unitOfWork.SourceFiles.Get(file => file.FileName.Equals(saleData.SourceFileName)).FirstOrDefaultAsync();
 
             bool addOrUpdateResult = false;
             addOrUpdateResult = sourceFile == null
                 ? await AddSaleDataAsync(saleData)
-                : await UpdateSaleData(saleData, sourceFile);
+                : await UpdateSaleDataAsync(saleData, sourceFile);
 
             return addOrUpdateResult;
+        }
+
+        protected virtual async Task<bool> AddSaleDetailsDataAsync(IList<SaleDto> saleDetailsData)
+        {
+            throw new NotImplementedException();
         }
 
         protected virtual async Task<bool> AddSaleDataAsync(SaleDataDto saleData)
@@ -42,9 +54,20 @@ namespace Sales.Storage.Management
             throw new NotImplementedException();
         }
 
-        protected virtual async Task<bool> UpdateSaleData(SaleDataDto saleData, SourceFile sourceFile)
+        protected virtual async Task<bool> UpdateSaleDataAsync(SaleDataDto saleData, SourceFile sourceFile)
         {
-            throw new NotImplementedException();
+            bool result = await Task.Run(() =>
+            {
+                var deleted = unitOfWork.Sales.Delete(sale => sale.SourceFileId == sourceFile.Id);
+                return deleted.Count() > 0;
+            });
+            
+            if (result)
+            {
+                result = await AddSaleDetailsDataAsync(saleData.Sales);
+            }
+
+            return result;
         }
 
         #region IDisposable Support

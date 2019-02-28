@@ -11,7 +11,7 @@ namespace Sales.Storage.Validation
     public class FileNameValidator
     {
         private const string DATE_FORMAT = "ddMMyyyy";
-        private const int INITIALS_LENGTH = 5;        
+        private const int INITIALS_LENGTH = 5;
         private const string FILENAME_PATTERN = @"[A-Z]{1}[a-z]{1}[A-Z]{1}[a-z]{2}_\d{8}\.[a-zA-Z]{1,}";
 
         /// <summary>
@@ -26,18 +26,19 @@ namespace Sales.Storage.Validation
             };
 
             Regex fileNameRegex = new Regex(FILENAME_PATTERN);
-            if (fileNameRegex.IsMatch(fileName))
+            try
             {
-                validationResult.ManagerInitials = fileName.Substring(0, INITIALS_LENGTH);
-                try
+                if (fileNameRegex.IsMatch(fileName))
                 {
+                    validationResult.ManagerInitials = fileName.Substring(0, INITIALS_LENGTH);
+
                     string dateString = fileName.Substring(INITIALS_LENGTH + 1, 8);
                     validationResult.Date = DateTime.ParseExact(dateString, DATE_FORMAT, CultureInfo.InvariantCulture);
                     validationResult.IsValid = true;
                 }
-                catch (Exception)
-                {
-                }
+            }
+            catch (Exception)
+            {
             }
 
             return validationResult;
