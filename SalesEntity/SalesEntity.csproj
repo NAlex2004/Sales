@@ -52,6 +52,7 @@
     <Compile Include="Entity\ErrorFile.cs" />
     <Compile Include="Entity\Product.cs" />
     <Compile Include="Entity\Sale.cs" />
+    <Compile Include="Entity\SalesDbContext.cs" />
     <Compile Include="Entity\SourceFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
