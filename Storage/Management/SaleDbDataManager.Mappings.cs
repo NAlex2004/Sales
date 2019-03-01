@@ -18,6 +18,7 @@ namespace Sales.Storage.Management
             {
                 Mapper.Register<Sale, SaleDto>().Member(dto => dto.CustomerName, src => src.Customer.CustomerName)
                     .Member(dto => dto.ProductName, src => src.Product.ProductName);
+                    //.Member(dto => dto.SourceFileId, src => src.SourceFileId);
                 Mapper.Register<SaleDto, Sale>().Function(src => src.Product, dto => new Product() { ProductName = dto.ProductName })
                     .Function(src => src.Customer, dto => new Customer() { CustomerName = dto.CustomerName });
             }

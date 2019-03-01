@@ -14,14 +14,16 @@ namespace Sales.Storage.Management
 {
     public partial class SaleDbDataManager : ISalesDataManager, IDisposable
     {
-        protected ISalesUnitOfWork unitOfWork;
+        // protected
+        public ISalesUnitOfWork unitOfWork;
 
         public SaleDbDataManager(ISalesUnitOfWork salesUnitOfWork)
         {
-            unitOfWork = unitOfWork ?? throw new ArgumentNullException();
+            unitOfWork = salesUnitOfWork ?? throw new ArgumentNullException();
         }
 
-        public SaleDbDataManager() : this(new SalesDbUnitOfWork(new SalesDbContext()))
+        public SaleDbDataManager() 
+            : this(new SalesDbUnitOfWork(new SalesDbContext()))
         {
         }
 
@@ -97,7 +99,11 @@ namespace Sales.Storage.Management
 
         protected virtual async Task<bool> UpdateSaleDataAsync(SaleDataDto saleData, SourceFile sourceFile)
         {
-            var deleted = unitOfWork.Sales.Delete(sale => sale.SourceFileId == sourceFile.Id);            
+            var deleted = unitOfWork.Sales.Delete(sale => sale.SourceFileId == sourceFile.Id);  
+            for (int i=0; i<saleData.Sales.Count; i++)
+            {
+                saleData.Sales[i].SourceFileId = sourceFile.Id;
+            }
             bool result = await AddSaleDetailsDataAsync(saleData.Sales);            
             return result;
         }

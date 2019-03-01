@@ -12,5 +12,6 @@ namespace Sales.Storage.DTO
         public string CustomerName { get; set; }
         public string ProductName { get; set; }
         public decimal TotalSum { get; set; }
+        public int SourceFileId { get; set; }
     }
 }

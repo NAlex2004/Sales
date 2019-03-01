@@ -2,6 +2,7 @@
 using Sales.DAL.Database;
 using Sales.DAL.Interfaces;
 using Sales.SalesEntity.Entity;
+using Sales.Storage.DTO;
 using Sales.Storage.Management;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,41 @@ namespace Tests
     [TestClass]
     public class DbTests
     {
+        private SaleDataDto GetSaleData(int additionalSum = 0)
+        {
+            SaleDataDto saleData = new SaleDataDto()
+            {
+                SourceFileName = "AlNaz_18121980.json"
+            };
+
+            List<SaleDto> saleDtos = new List<SaleDto>();
+
+            for (int i = 0; i < 10; i++)
+            {
+                SaleDto saleDto = new SaleDto()
+                {
+                    SaleDate = new DateTime(2018, i + 1, i + 1),
+                    CustomerName = $"Customer #{i + 1}",
+                    ProductName = $"Product #{i + 1}",
+                    TotalSum = (i + 10) * 10
+                };
+
+                SaleDto saleDto2 = new SaleDto()
+                {
+                    SaleDate = new DateTime(2018, i + 1, i + 1),
+                    CustomerName = $"Customer #{i + 1}",
+                    ProductName = $"Product #{i + 1}",
+                    TotalSum = (i + 10) * 10 + additionalSum
+                };
+
+                saleDtos.Add(saleDto);
+                saleDtos.Add(saleDto2);
+            }
+
+            saleData.Sales = saleDtos;
+            return saleData;
+        }
+
         [TestMethod]
         public void AddNewSaleWithNewProduct_AddsProduct()
         {
@@ -152,6 +188,60 @@ namespace Tests
                     int count = unitOfWork.SourceFiles.Get().Count();
                     Assert.AreEqual(0, count);
                 }
+            }
+        }
+
+        [TestMethod]
+        public void SaleDbDataManager_AddData_CorrectlyAddsDuplicates_AndSameFile()
+        {
+            SaleDataDto saleDataDto = GetSaleData();
+            var groupedSales = saleDataDto.Sales
+                .GroupBy(sale => new { sale.CustomerName, sale.ProductName, sale.SaleDate },
+                (key, sales) => new SaleDto()
+                {
+                    CustomerName = key.CustomerName,
+                    ProductName = key.ProductName,
+                    SaleDate = key.SaleDate,
+                    TotalSum = sales.Sum(s => s.TotalSum)
+                });
+            int customersCount = saleDataDto.Sales.Select(s => s.CustomerName).Distinct().Count();
+            int productsCount = saleDataDto.Sales.Select(s => s.ProductName).Distinct().Count();
+            int salesCount = groupedSales.Count();
+
+            using (SaleDbDataManager manager = new SaleDbDataManager())
+            {
+                bool res = manager.AddOrUpdateSaleDataAsync(saleDataDto).GetAwaiter().GetResult();
+
+                int savedSalesCount = manager.unitOfWork.Sales.Get().Count();
+                int savedCustomersCount = manager.unitOfWork.Customers.Get().Count();
+                int savedProductsCount = manager.unitOfWork.Products.Get().Count();
+
+                Assert.IsTrue(res);
+                Assert.AreEqual(customersCount, savedCustomersCount);
+                Assert.AreEqual(productsCount, savedProductsCount);
+                Assert.AreEqual(salesCount, savedSalesCount);
+
+                saleDataDto = GetSaleData(1);
+                groupedSales = saleDataDto.Sales
+                    .GroupBy(sale => new { sale.CustomerName, sale.ProductName, sale.SaleDate },
+                    (key, sales) => new SaleDto()
+                    {
+                        CustomerName = key.CustomerName,
+                        ProductName = key.ProductName,
+                        SaleDate = key.SaleDate,
+                        TotalSum = sales.Sum(s => s.TotalSum)
+                    });
+
+                res = manager.AddOrUpdateSaleDataAsync(saleDataDto).GetAwaiter().GetResult();
+
+                Assert.IsTrue(res);
+                savedSalesCount = manager.unitOfWork.Sales.Get().Count();
+                savedCustomersCount = manager.unitOfWork.Customers.Get().Count();
+                savedProductsCount = manager.unitOfWork.Products.Get().Count();
+
+                Assert.AreEqual(customersCount, savedCustomersCount);
+                Assert.AreEqual(productsCount, savedProductsCount);
+                Assert.AreEqual(salesCount, savedSalesCount);
             }
         }
     }

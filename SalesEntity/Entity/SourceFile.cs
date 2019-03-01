@@ -18,5 +18,7 @@ namespace Sales.SalesEntity.Entity
         [Index(IsUnique = true)]
         [MaxLength(500)]
         public string FileName { get; set; }
+
+        public virtual ICollection<Sale> Sales { get; set; }
     }
 }
