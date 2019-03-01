@@ -18,7 +18,7 @@ namespace Sales.Storage.Management
 
         public SaleDbDataManager(ISalesUnitOfWork salesUnitOfWork)
         {
-            unitOfWork = unitOfWork ?? throw new ArgumentNullException();            
+            unitOfWork = unitOfWork ?? throw new ArgumentNullException();
         }
 
         public SaleDbDataManager() : this(new SalesDbUnitOfWork(new SalesDbContext()))
@@ -33,6 +33,17 @@ namespace Sales.Storage.Management
                 return false;
             }
 
+            // Group data
+            saleData.Sales = saleData.Sales
+                .GroupBy(sale => new { sale.CustomerName, sale.ProductName, sale.SaleDate },
+                (key, sales) => new SaleDto()
+                {
+                    CustomerName = key.CustomerName,
+                    ProductName = key.ProductName,
+                    SaleDate = key.SaleDate,
+                    TotalSum = sales.Sum(s => s.TotalSum)
+                }).ToList();
+
             SourceFile sourceFile = await unitOfWork.SourceFiles.Get(file => file.FileName.Equals(saleData.SourceFileName)).FirstOrDefaultAsync();
 
             bool addOrUpdateResult = false;
@@ -45,28 +56,49 @@ namespace Sales.Storage.Management
 
         protected virtual async Task<bool> AddSaleDetailsDataAsync(IList<SaleDto> saleDetailsData)
         {
-            throw new NotImplementedException();
+            bool result = await Task.Run(() =>
+            {
+                var mapper = Mappings.GetMapper();
+                try
+                {
+                    foreach (var saleDto in saleDetailsData)
+                    {
+                        Sale sale = mapper.Map<SaleDto, Sale>(saleDto);
+                        sale.Customer = unitOfWork.Customers.Add(sale.Customer);
+                        sale.Product = unitOfWork.Products.Add(sale.Product);
+                        unitOfWork.Sales.Add(sale);
+                    }
+
+                    unitOfWork.SaveChanges();
+
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    return false;
+                }
+            });
+
+            return result;
         }
 
         protected virtual async Task<bool> AddSaleDataAsync(SaleDataDto saleData)
         {
-            
-            throw new NotImplementedException();
+            SourceFile sourceFile = new SourceFile()
+            {
+                FileName = saleData.SourceFileName
+            };
+            unitOfWork.SourceFiles.Add(sourceFile);
+
+            bool result = await AddSaleDetailsDataAsync(saleData.Sales);
+
+            return result;
         }
 
         protected virtual async Task<bool> UpdateSaleDataAsync(SaleDataDto saleData, SourceFile sourceFile)
         {
-            bool result = await Task.Run(() =>
-            {
-                var deleted = unitOfWork.Sales.Delete(sale => sale.SourceFileId == sourceFile.Id);
-                return deleted.Count() > 0;
-            });
-            
-            if (result)
-            {
-                result = await AddSaleDetailsDataAsync(saleData.Sales);
-            }
-
+            var deleted = unitOfWork.Sales.Delete(sale => sale.SourceFileId == sourceFile.Id);            
+            bool result = await AddSaleDetailsDataAsync(saleData.Sales);            
             return result;
         }
 
@@ -84,16 +116,16 @@ namespace Sales.Storage.Management
                         unitOfWork.Dispose();
                     }
                 }
-               
+
                 disposedValue = true;
             }
-        }        
+        }
 
         // This code added to correctly implement the disposable pattern.
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            Dispose(true);         
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
         #endregion

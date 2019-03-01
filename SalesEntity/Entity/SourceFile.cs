@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sales.SalesEntity.Entity
 {
@@ -14,6 +15,8 @@ namespace Sales.SalesEntity.Entity
         [Key]
         public int Id { get; set; }
         [Required]
+        [Index(IsUnique = true)]
+        [MaxLength(500)]
         public string FileName { get; set; }
     }
 }

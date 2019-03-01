@@ -16,5 +16,7 @@ namespace Sales.SalesEntity.Entity
         [Index(IsUnique = true)]
         [MaxLength(500)]
         public string CustomerName { get; set; }
+
+        public virtual ICollection<Sale> Sales { get; set; }
     }
 }

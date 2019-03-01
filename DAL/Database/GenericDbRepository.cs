@@ -37,8 +37,18 @@ namespace Sales.DAL.Database
         }
 
         public virtual IEnumerable<TEntity> Delete(Expression<Func<TEntity, bool>> condition)
-        {            
-            // ToDo: get Local, mark as Deleted
+        {
+            // Local entities, not saved to database
+            var localEntities = dbContext.Set<TEntity>().Local.Where(condition.Compile());
+            foreach (var entity in localEntities)
+            {
+                EntityState currentState = dbContext.Entry(entity).State;
+                if (currentState == EntityState.Added || currentState == EntityState.Unchanged || currentState == EntityState.Modified)
+                {
+                    dbContext.Entry(entity).State = EntityState.Deleted;
+                }
+            }
+            
             var entitiesToRemove = Get(condition).ToArray();            
             return dbContext.Set<TEntity>().RemoveRange(entitiesToRemove);
         }
