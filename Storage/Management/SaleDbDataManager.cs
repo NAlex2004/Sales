@@ -5,10 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.Entity;
 using Sales.SalesEntity.Entity;
-using Sales.SaleSource.DTO;
+using Sales.Storage.DTO;
 using Sales.DAL.Interfaces;
 using Sales.DAL.Database;
-using Sales.SaleSource.Validation;
 
 namespace Sales.Storage.Management
 {
@@ -32,12 +31,6 @@ namespace Sales.Storage.Management
             {
                 return false;
             }
-
-            //var validationResult = FileNameValidator.Validate(saleData.SourceFileName);
-            //if (!validationResult.IsValid)
-            //{
-            //    return false;
-            //}
 
             // Group data
             saleData.Sales = saleData.Sales

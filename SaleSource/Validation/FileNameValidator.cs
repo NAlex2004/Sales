@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Sales.SaleSource.Validation
 {
 
-    public class FileNameValidator : IFileNameValidator
+    public class FileNameValidator// : IFileNameValidator
     {
         private const string DATE_FORMAT = "ddMMyyyy";
         private const int INITIALS_LENGTH = 5;
@@ -19,7 +19,7 @@ namespace Sales.SaleSource.Validation
         /// Valid file name like this: IvIva_19112012.json
         /// [prefix]_DDMMYYYY.[extension]
         /// </summary>        
-        public bool Validate(string fileName)
+        public static bool Validate(string fileName)
         {
             bool isValid = false;
 

@@ -5,7 +5,7 @@ using Sales.SaleSource.Validation;
 using ExpressMapper;
 using ExpressMapper.Extensions;
 using Sales.SalesEntity.Entity;
-using Sales.SaleSource.DTO;
+using Sales.Storage.DTO;
 using Sales.Storage.Management;
 
 namespace Tests
@@ -27,11 +27,10 @@ namespace Tests
 
         [TestMethod]        
         public void FileNameValidation_Correct()
-        {
-            IFileNameValidator validator = new FileNameValidator();
+        {            
             foreach (var entry in fileNamesSource)
             {
-                var validationResult = validator.Validate(entry.Key);
+                var validationResult = FileNameValidator.Validate(entry.Key);
                 Assert.AreEqual(entry.Value, validationResult);
             }
         }

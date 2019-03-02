@@ -2,7 +2,7 @@
 using Sales.DAL.Database;
 using Sales.DAL.Interfaces;
 using Sales.SalesEntity.Entity;
-using Sales.SaleSource.DTO;
+using Sales.Storage.DTO;
 using Sales.Storage.Management;
 using System;
 using System.Collections.Generic;
