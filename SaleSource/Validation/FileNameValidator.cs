@@ -6,9 +6,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Sales.Storage.Validation
+namespace Sales.SaleSource.Validation
 {
-    public class FileNameValidator
+
+    public class FileNameValidator : IFileNameValidator
     {
         private const string DATE_FORMAT = "ddMMyyyy";
         private const int INITIALS_LENGTH = 5;
@@ -18,30 +19,25 @@ namespace Sales.Storage.Validation
         /// Valid file name like this: IvIva_19112012.json
         /// [prefix]_DDMMYYYY.[extension]
         /// </summary>        
-        public static FileNameValidationResult Validate(string fileName)
+        public bool Validate(string fileName)
         {
-            FileNameValidationResult validationResult = new FileNameValidationResult()
-            {
-                IsValid = false
-            };
+            bool isValid = false;
 
             Regex fileNameRegex = new Regex(FILENAME_PATTERN);
             try
             {
                 if (fileNameRegex.IsMatch(fileName))
-                {
-                    validationResult.ManagerInitials = fileName.Substring(0, INITIALS_LENGTH);
-
+                {                    
                     string dateString = fileName.Substring(INITIALS_LENGTH + 1, 8);
-                    validationResult.Date = DateTime.ParseExact(dateString, DATE_FORMAT, CultureInfo.InvariantCulture);
-                    validationResult.IsValid = true;
+                    var date = DateTime.ParseExact(dateString, DATE_FORMAT, CultureInfo.InvariantCulture);
+                    isValid = true;
                 }
             }
             catch (Exception)
             {
             }
 
-            return validationResult;
+            return isValid;
         }
     }
 }

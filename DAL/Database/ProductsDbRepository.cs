@@ -17,8 +17,10 @@ namespace Sales.DAL.Database
         public override Product Add(Product entity)
         {
             Product localProduct = GetLocalEntity<Product>(p => p.ProductName.Equals(entity.ProductName));
-                
-            if (localProduct != null)
+
+            if (localProduct != null
+                && dbContext.Entry(localProduct).State != EntityState.Detached
+                && dbContext.Entry(localProduct).State != EntityState.Deleted)                
             {                                
                 return localProduct;
             }

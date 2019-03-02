@@ -76,6 +76,10 @@
       <Project>{aae442bb-5844-4935-ac5f-b1e25af6784c}</Project>
       <Name>SalesEntity</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SaleSource\SaleSource.csproj">
+      <Project>{1b62f7d6-4016-4cf9-bf02-796ee6a49d12}</Project>
+      <Name>SaleSource</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Storage\Storage.csproj">
       <Project>{58170bd4-8601-486f-b120-3e252f92e575}</Project>
       <Name>Storage</Name>

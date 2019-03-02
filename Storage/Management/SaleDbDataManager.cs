@@ -5,17 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.Entity;
 using Sales.SalesEntity.Entity;
-using Sales.Storage.DTO;
+using Sales.SaleSource.DTO;
 using Sales.DAL.Interfaces;
 using Sales.DAL.Database;
-using Sales.Storage.Validation;
+using Sales.SaleSource.Validation;
 
 namespace Sales.Storage.Management
 {
     public partial class SaleDbDataManager : ISalesDataManager, IDisposable
     {
-        // protected
-        public ISalesUnitOfWork unitOfWork;
+        protected ISalesUnitOfWork unitOfWork;
 
         public SaleDbDataManager(ISalesUnitOfWork salesUnitOfWork)
         {
@@ -29,11 +28,16 @@ namespace Sales.Storage.Management
 
         public async Task<bool> AddOrUpdateSaleDataAsync(SaleDataDto saleData)
         {
-            var validationResult = FileNameValidator.Validate(saleData.SourceFileName);
-            if (!validationResult.IsValid)
+            if (saleData == null || string.IsNullOrEmpty(saleData.SourceFileName))
             {
                 return false;
             }
+
+            //var validationResult = FileNameValidator.Validate(saleData.SourceFileName);
+            //if (!validationResult.IsValid)
+            //{
+            //    return false;
+            //}
 
             // Group data
             saleData.Sales = saleData.Sales

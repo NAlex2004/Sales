@@ -2,7 +2,7 @@
 using Sales.DAL.Database;
 using Sales.DAL.Interfaces;
 using Sales.SalesEntity.Entity;
-using Sales.Storage.DTO;
+using Sales.SaleSource.DTO;
 using Sales.Storage.Management;
 using System;
 using System.Collections.Generic;
@@ -152,7 +152,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void SaveChanges_Fails_NothingSaved()
+        public void When_SaveChanges_Fails_NothingSaved()
         {
             SourceFile sourceFile1 = new SourceFile()
             {
@@ -208,18 +208,23 @@ namespace Tests
             int productsCount = saleDataDto.Sales.Select(s => s.ProductName).Distinct().Count();
             int salesCount = groupedSales.Count();
 
-            using (SaleDbDataManager manager = new SaleDbDataManager())
+            using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new SalesDbContext()))
+            using (SaleDbDataManager manager = new SaleDbDataManager(unitOfWork))
             {
+                int initialCustomersCount = unitOfWork.Customers.Get().Count();
+                int initialProductsCount = unitOfWork.Products.Get().Count();
+                int initialSalesCount = unitOfWork.Sales.Get().Count();
+
                 bool res = manager.AddOrUpdateSaleDataAsync(saleDataDto).GetAwaiter().GetResult();
 
-                int savedSalesCount = manager.unitOfWork.Sales.Get().Count();
-                int savedCustomersCount = manager.unitOfWork.Customers.Get().Count();
-                int savedProductsCount = manager.unitOfWork.Products.Get().Count();
+                int savedSalesCount = unitOfWork.Sales.Get().Count();
+                int savedCustomersCount = unitOfWork.Customers.Get().Count();
+                int savedProductsCount = unitOfWork.Products.Get().Count();
 
                 Assert.IsTrue(res);
-                Assert.AreEqual(customersCount, savedCustomersCount);
-                Assert.AreEqual(productsCount, savedProductsCount);
-                Assert.AreEqual(salesCount, savedSalesCount);
+                Assert.AreEqual(customersCount + initialCustomersCount, savedCustomersCount);
+                Assert.AreEqual(productsCount + initialProductsCount, savedProductsCount);
+                Assert.AreEqual(salesCount + initialSalesCount, savedSalesCount);
 
                 saleDataDto = GetSaleData(1);
                 groupedSales = saleDataDto.Sales
@@ -235,13 +240,13 @@ namespace Tests
                 res = manager.AddOrUpdateSaleDataAsync(saleDataDto).GetAwaiter().GetResult();
 
                 Assert.IsTrue(res);
-                savedSalesCount = manager.unitOfWork.Sales.Get().Count();
-                savedCustomersCount = manager.unitOfWork.Customers.Get().Count();
-                savedProductsCount = manager.unitOfWork.Products.Get().Count();
+                savedSalesCount = unitOfWork.Sales.Get().Count();
+                savedCustomersCount = unitOfWork.Customers.Get().Count();
+                savedProductsCount = unitOfWork.Products.Get().Count();
 
-                Assert.AreEqual(customersCount, savedCustomersCount);
-                Assert.AreEqual(productsCount, savedProductsCount);
-                Assert.AreEqual(salesCount, savedSalesCount);
+                Assert.AreEqual(customersCount + initialCustomersCount, savedCustomersCount);
+                Assert.AreEqual(productsCount + initialProductsCount, savedProductsCount);
+                Assert.AreEqual(salesCount + initialSalesCount, savedSalesCount);
             }
         }
     }

@@ -1,7 +1,7 @@
 ﻿using ExpressMapper;
 using ExpressMapper.Extensions;
 using Sales.SalesEntity.Entity;
-using Sales.Storage.DTO;
+using Sales.SaleSource.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;

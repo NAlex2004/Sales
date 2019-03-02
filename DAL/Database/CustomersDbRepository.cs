@@ -18,8 +18,10 @@ namespace Sales.DAL.Database
         {
             Customer localCustomer = GetLocalEntity<Customer>(p => p.CustomerName.Equals(entity.CustomerName));
 
-            if (localCustomer != null)
-            {
+            if (localCustomer != null
+                && dbContext.Entry(localCustomer).State != EntityState.Detached
+                && dbContext.Entry(localCustomer).State != EntityState.Deleted)
+            {                
                 return localCustomer;
             }
 
