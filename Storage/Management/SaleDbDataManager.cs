@@ -11,7 +11,7 @@ using Sales.DAL.Database;
 
 namespace Sales.Storage.Management
 {
-    public partial class SaleDbDataManager : ISalesDataManager, IDisposable
+    public partial class SaleDbDataManager : ISalesDataManager
     {
         protected ISalesUnitOfWork unitOfWork;
 
@@ -44,7 +44,7 @@ namespace Sales.Storage.Management
                 }).ToList();
 
             SourceFile sourceFile = await unitOfWork.SourceFiles.Get(file => file.FileName.Equals(saleData.SourceFileName)).FirstOrDefaultAsync();
-
+            
             bool addOrUpdateResult = false;
             addOrUpdateResult = sourceFile == null
                 ? await AddSaleDataAsync(saleData)
@@ -105,6 +105,39 @@ namespace Sales.Storage.Management
             return result;
         }
 
+        public async Task<bool> AddErrorAsync(SaleDataDto saleData)
+        {
+            try
+            {
+                unitOfWork.ErrorFiles.Add(new ErrorFile() { FileName = saleData.SourceFileName });
+                int res = await unitOfWork.SaveChangesAsync();
+                return res > 0;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> RemoveErrorAsync(SaleDataDto saleData)
+        {
+            bool result = false;
+            try
+            {
+                var deleted = unitOfWork.ErrorFiles.Delete(error => error.FileName == saleData.SourceFileName);
+                if (deleted.Count() > 0)
+                {
+                    int res = await unitOfWork.SaveChangesAsync();
+                    result = res > 0;
+                }                
+            }
+            catch (Exception e)
+            {                
+            }
+
+            return result;
+        }
+
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
@@ -131,6 +164,7 @@ namespace Sales.Storage.Management
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+        
         #endregion
     }
 }

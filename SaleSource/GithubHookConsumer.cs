@@ -93,10 +93,13 @@ namespace Sales.SaleSource
 
             var fileUrls = GetFileUrls(hook);
 
+            List<Task> tasks = new List<Task>();
             foreach (string url in fileUrls)
             {
-                await saleFileHandler.HandleSaleFileAsync(url);                
+                Task task = saleFileHandler.HandleSaleFileAsync(url);
+                tasks.Add(task);
             }
+            await Task.WhenAll(tasks);
         }
     }
 }

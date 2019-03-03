@@ -44,7 +44,7 @@ namespace Playground
                     httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Token", "..token here..");
 
                     string responseBody = httpClient.GetStringAsync(url).GetAwaiter().GetResult();
-
+                    
                     Console.WriteLine(responseBody);
                     var responseObject = JsonConvert.DeserializeObject<HookResponse>(responseBody);
                     var bytes = Convert.FromBase64String(responseObject.Content);

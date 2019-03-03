@@ -51,12 +51,14 @@
     <Compile Include="Github\GithubRepository.cs" />
     <Compile Include="GithubHookConsumer.cs" />
     <Compile Include="IHookConsumer.cs" />
+    <Compile Include="SaleFileHandler.cs" />
     <Compile Include="SaleFileHandlerBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Validation\FileNameValidator.cs" />
     <Compile Include="Validation\IFileNameValidator.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
