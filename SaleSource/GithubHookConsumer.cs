@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,18 +29,52 @@ namespace Sales.SaleSource
             StringBuilder urlBuilder = new StringBuilder(GITHUB_URL);
             urlBuilder.Append(repository.Full_Name).Append("/contents/").Append(filePath);
             return urlBuilder.ToString();
+        }        
+
+        private void ProcessCommitFilesWithState(Dictionary<string, FileState> urls, IList<string> fileNames, FileState fileState)
+        {
+            foreach (string fileName in fileNames)
+            {
+                if (string.IsNullOrEmpty(fileName)
+                    || (fileNameValidator != null && !fileNameValidator(Path.GetFileName(fileName))))
+                {                                        
+                    continue;                    
+                }
+
+                if (urls.ContainsKey(fileName))
+                {
+                    urls[fileName] = fileState;
+                }
+                else
+                {
+                    urls.Add(fileName, fileState);
+                }
+            }
         }
 
         protected IEnumerable<string> GetFileUrls(GithubHook hook)
         {
-            List<string> urls = new List<string>();
+            Dictionary<string, FileState> urls = new Dictionary<string, FileState>();
 
+            //hook.Commits.OrderBy(c => c.Timestamp)
+            foreach (var commit in hook.Commits)
+            {
+                ProcessCommitFilesWithState(urls, commit.Added, FileState.Added);
+                ProcessCommitFilesWithState(urls, commit.Modified, FileState.Modified);
+                ProcessCommitFilesWithState(urls, commit.Removed, FileState.Removed);
+            }
 
-            return urls;
+            var result = urls.Where(entry => entry.Value != FileState.Removed).Select(entry => entry.Key);
+            return result;
         }
 
         public async Task ConsumeHookAsync(string hookJson)
         {
+            if (saleFileHandler == null)
+            {
+                return;
+            }
+
             GithubHook hook = null;
             try
             {
