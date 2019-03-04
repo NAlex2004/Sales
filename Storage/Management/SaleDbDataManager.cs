@@ -78,6 +78,7 @@ namespace Sales.Storage.Management
                 }
                 catch (Exception e)
                 {
+                    unitOfWork.DiscardChanges();
                     return new SaleManagementResult()
                     {
                         Succeeded = false,
@@ -137,6 +138,7 @@ namespace Sales.Storage.Management
             }
             catch (Exception e)
             {
+                unitOfWork.DiscardChanges();
                 result.ErrorMessage = GetLastErrorMessage(e);
             }
 
@@ -175,6 +177,7 @@ namespace Sales.Storage.Management
             }
             catch (Exception e)
             {
+                unitOfWork.DiscardChanges();
                 result.ErrorMessage = GetLastErrorMessage(e);                
             }
 

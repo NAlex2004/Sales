@@ -97,7 +97,7 @@ namespace Sales.SaleSource
                 result = new SaleManagementResult()
                 {
                     Succeeded = false,
-                    ErrorMessage = "[HandleSaleFileAsync]: saleData is null"
+                    ErrorMessage = "[GithubSaleFileHandler.HandleSaleFileAsync]: Skipping file because 'saleData' is null"
                 };
             }
 

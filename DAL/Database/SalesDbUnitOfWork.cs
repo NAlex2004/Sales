@@ -38,6 +38,12 @@ namespace Sales.DAL.Database
             return dbContext.SaveChangesAsync();
         }
 
+        public void DiscardChanges()
+        {
+            dbContext.ChangeTracker.Entries().ToList()
+                .ForEach(e => e.State = System.Data.Entity.EntityState.Detached);            
+        }
+
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 

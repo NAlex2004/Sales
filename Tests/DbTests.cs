@@ -152,6 +152,46 @@ namespace Tests
         }
 
         [TestMethod]
+        public void AddingSameProductInDifferentContexts_AddedOnce()
+        {
+            using (var unitOfWork = new SalesDbUnitOfWork(new SalesDbContext()))
+            using (var unitOfWork2 = new SalesDbUnitOfWork(new SalesDbContext()))
+            {
+                unitOfWork.Products.Delete(p => true);
+                unitOfWork.SaveChanges();
+                unitOfWork2.Products.Delete(p => true);
+                unitOfWork2.SaveChanges();
+
+                Product product1 = new Product()
+                {
+                    ProductName = "Product 1"
+                };
+                Product product2 = new Product()
+                {
+                    ProductName = "Product 1"
+                };
+                Product product3 = new Product()
+                {
+                    ProductName = "Product 1"
+                };
+                Product product4 = new Product()
+                {
+                    ProductName = "Product 1"
+                };
+
+                var added = unitOfWork.Products.AddRange(new[] { product1, product2 });
+                int res = unitOfWork.SaveChanges();
+
+                unitOfWork2.Products.AddRange(new[] { product4, product3 });
+                res = unitOfWork2.SaveChanges();
+
+                int count = unitOfWork.Products.Get().Count();
+
+                Assert.AreEqual(1, count);
+            }
+        }
+
+        [TestMethod]
         public void When_SaveChanges_Fails_NothingSaved()
         {
             SourceFile sourceFile1 = new SourceFile()

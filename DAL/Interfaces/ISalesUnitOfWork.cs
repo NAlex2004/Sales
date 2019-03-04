@@ -17,5 +17,6 @@ namespace Sales.DAL.Interfaces
 
         int SaveChanges();
         Task<int> SaveChangesAsync();
+        void DiscardChanges();
     }
 }
