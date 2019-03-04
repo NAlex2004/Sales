@@ -39,6 +39,7 @@ namespace Sales.SaleSource
             {
                 result = new SaleManagementResult()
                 {
+                    FileName = saleData.SourceFileName,
                     Succeeded = false,
                     ErrorMessage = "[GithubSaleFileHandler.HandleSaleFileAsync]: Skipping file because it has no suitable data."
                 };

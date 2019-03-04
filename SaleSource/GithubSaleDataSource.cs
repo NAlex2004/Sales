@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -34,6 +35,7 @@ namespace Sales.SaleSource
                 SourceFileName = fileName
             };
 
+            Debug.WriteLine($"[GetSaleDataAsync]: {fileName}");
             using (HttpClient httpClient = new HttpClient())
             {
                 try
@@ -64,6 +66,7 @@ namespace Sales.SaleSource
 
                     if (IsAllDataCorrect)
                     {
+                        Debug.WriteLine($"[GetSaleDataAsync]: CORRECT {fileName}");
                         saleData.Sales = salesFromFile;
                         return saleData;
                     }
@@ -71,6 +74,7 @@ namespace Sales.SaleSource
                 }
                 catch (Exception e)
                 {
+                    Debug.WriteLine($"[GetSaleDataAsync]: ERROR: {e.Message}");
                 }
 
                 return saleData;

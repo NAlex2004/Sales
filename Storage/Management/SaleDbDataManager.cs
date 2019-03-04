@@ -8,6 +8,8 @@ using Sales.SalesEntity.Entity;
 using Sales.Storage.DTO;
 using Sales.DAL.Interfaces;
 using Sales.DAL.Database;
+using System.Data.Entity.Validation;
+using System.Diagnostics;
 
 namespace Sales.Storage.Management
 {
@@ -136,6 +138,13 @@ namespace Sales.Storage.Management
                 result.Succeeded = savedCount > 0;
                 result.ErrorMessage = savedCount > 0 ? "" : "Data is not saved";                
             }
+            //catch (DbEntityValidationException ex)
+            //{                
+            //    foreach(var error in ex.EntityValidationErrors)
+            //    {
+            //        Debug.Write($"[ENTITY VALIDATION EXCEPTION]: {error}");
+            //    }                
+            //}
             catch (Exception e)
             {
                 unitOfWork.DiscardChanges();
