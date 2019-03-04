@@ -45,6 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Factory\ISaleFileHandlerFactory.cs" />
+    <Compile Include="Factory\GithubSaleFileHandlerFactory.cs" />
     <Compile Include="Github\FileState.cs" />
     <Compile Include="Github\GithubCommit.cs" />
     <Compile Include="Github\GithubFileResponse.cs" />

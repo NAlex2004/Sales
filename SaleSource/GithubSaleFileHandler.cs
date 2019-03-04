@@ -15,13 +15,13 @@ using System.IO;
 
 namespace Sales.SaleSource
 {
-    public class GithubSaleFileHandler : SaleFileHandlerBase, IDisposable
+    public class GithubSaleFileHandler : SaleFileHandlerBase
     {
         public GithubSaleFileHandler(ISalesDataManager salesDataManager) : base(salesDataManager)
         {
         }
 
-        protected async Task<SaleDataDto> GetSalesFromGithub(string url)
+        protected async virtual Task<SaleDataDto> GetSalesFromGithub(string url)
         {
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
@@ -88,28 +88,6 @@ namespace Sales.SaleSource
             await salesDataManager.AddErrorAsync(saleData);            
         }
 
-        #region IDisposable Support
-        private bool disposedValue = false;
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    salesDataManager.Dispose();
-                }
-
-                disposedValue = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        #endregion
+        
     }
 }

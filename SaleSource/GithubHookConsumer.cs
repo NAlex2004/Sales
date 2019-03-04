@@ -9,18 +9,19 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Sales.SaleSource.Github;
 using Sales.Storage.Management;
+using Sales.SaleSource.Factory;
 
 namespace Sales.SaleSource
 {
     public class GithubHookConsumer : IHookConsumer
     {
         private const string GITHUB_URL = "https://api.github.com/repos/";
-        protected SaleFileHandlerBase saleFileHandler;
+        protected ISaleFileHandlerFactory saleFileHandlerFactory;
         protected Func<string, bool> fileNameValidator;
 
-        public GithubHookConsumer(SaleFileHandlerBase saleFileHandler, Func<string, bool> fileNameValidator = null)
+        public GithubHookConsumer(ISaleFileHandlerFactory saleFileHandlerFactory, Func<string, bool> fileNameValidator = null)
         {
-            this.saleFileHandler = saleFileHandler;
+            this.saleFileHandlerFactory = saleFileHandlerFactory;
             this.fileNameValidator = fileNameValidator;
         }
 
@@ -52,7 +53,7 @@ namespace Sales.SaleSource
             }
         }
 
-        protected IEnumerable<string> GetFileUrls(GithubHook hook)
+        protected virtual IEnumerable<string> GetFileUrls(GithubHook hook)
         {
             Dictionary<string, FileState> urls = new Dictionary<string, FileState>();
 
@@ -68,9 +69,9 @@ namespace Sales.SaleSource
             return result;
         }
 
-        public async Task ConsumeHookAsync(string hookJson)
+        public async virtual Task ConsumeHookAsync(string hookJson)
         {
-            if (saleFileHandler == null)
+            if (saleFileHandlerFactory == null)
             {
                 return;
             }
@@ -94,12 +95,21 @@ namespace Sales.SaleSource
             var fileUrls = GetFileUrls(hook);
 
             List<Task> tasks = new List<Task>();
+            List<SaleFileHandlerBase> handlers = new List<SaleFileHandlerBase>();
             foreach (string url in fileUrls)
             {
+                SaleFileHandlerBase saleFileHandler = saleFileHandlerFactory.GetSaleFileHandler();
+                handlers.Add(saleFileHandler);
+
                 Task task = saleFileHandler.HandleSaleFileAsync(url);
                 tasks.Add(task);
             }
             await Task.WhenAll(tasks);
+
+            for (int handlerIndex = 0; handlerIndex < handlers.Count; handlerIndex++)
+            {
+                handlers[handlerIndex].Dispose();
+            }
         }
     }
 }
