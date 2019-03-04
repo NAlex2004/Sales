@@ -1,0 +1,247 @@
+{
+  "ref": "refs/heads/master",
+  "before": "c33006ff280cc9aa55ca1a7c2da3bc7209cf6cd2",
+  "after": "9ef3e2b4cd1d14643d73aa3cca93c8a56f9cadfc",
+  "created": false,
+  "deleted": false,
+  "forced": false,
+  "base_ref": null,
+  "compare": "https://github.com/NAlex2004/SalesData/compare/c33006ff280c...9ef3e2b4cd1d",
+  "commits": [
+    {
+      "id": "a3c5e79745931e80bff82900f196ff403ac19b09",
+      "tree_id": "89994e36d47a5ab5e4225f26c6bc8e7e69b4a0b5",
+      "distinct": true,
+      "message": ".",
+      "timestamp": "2019-03-04T10:34:55+03:00",
+      "url": "https://github.com/NAlex2004/SalesData/commit/a3c5e79745931e80bff82900f196ff403ac19b09",
+      "author": {
+        "name": "Aliaksei_Nazarau",
+        "email": "nalex2004@gmail.com",
+        "username": "NAlex2004"
+      },
+      "committer": {
+        "name": "Aliaksei_Nazarau",
+        "email": "nalex2004@gmail.com",
+        "username": "NAlex2004"
+      },
+      "added": [
+        "Manager_2/AlNaz_04032019.json",
+        "Manager_2/ErErr_03032019.json",
+        "Manager_2/ErNot_04032019.json",
+        "Manager_2/VaAli_03032019.json",
+        "Manager_2/xx_03032019.json"
+      ],
+      "removed": [
+
+      ],
+      "modified": [
+
+      ]
+    },
+    {
+      "id": "aa2d9c51343901cf3ebf965a2ad5b2bc3f9824ad",
+      "tree_id": "148775d5da28de08b817df42dce397e08786be1d",
+      "distinct": true,
+      "message": ".",
+      "timestamp": "2019-03-04T10:35:36+03:00",
+      "url": "https://github.com/NAlex2004/SalesData/commit/aa2d9c51343901cf3ebf965a2ad5b2bc3f9824ad",
+      "author": {
+        "name": "Aliaksei_Nazarau",
+        "email": "nalex2004@gmail.com",
+        "username": "NAlex2004"
+      },
+      "committer": {
+        "name": "Aliaksei_Nazarau",
+        "email": "nalex2004@gmail.com",
+        "username": "NAlex2004"
+      },
+      "added": [
+        "Manager_2/ErErr_04032019.json"
+      ],
+      "removed": [
+        "Manager_2/ErErr_03032019.json"
+      ],
+      "modified": [
+
+      ]
+    },
+    {
+      "id": "36dbce745cf9b23449af943531bc70bd595437a5",
+      "tree_id": "7f21c6fdb88fa78ce4038a3c9c51d5b9081c81a3",
+      "distinct": true,
+      "message": ".",
+      "timestamp": "2019-03-04T10:36:10+03:00",
+      "url": "https://github.com/NAlex2004/SalesData/commit/36dbce745cf9b23449af943531bc70bd595437a5",
+      "author": {
+        "name": "Aliaksei_Nazarau",
+        "email": "nalex2004@gmail.com",
+        "username": "NAlex2004"
+      },
+      "committer": {
+        "name": "Aliaksei_Nazarau",
+        "email": "nalex2004@gmail.com",
+        "username": "NAlex2004"
+      },
+      "added": [
+        "Manager_2/ErEro_11032019.json"
+      ],
+      "removed": [
+
+      ],
+      "modified": [
+
+      ]
+    },
+    {
+      "id": "9ef3e2b4cd1d14643d73aa3cca93c8a56f9cadfc",
+      "tree_id": "148775d5da28de08b817df42dce397e08786be1d",
+      "distinct": true,
+      "message": ".",
+      "timestamp": "2019-03-04T10:36:27+03:00",
+      "url": "https://github.com/NAlex2004/SalesData/commit/9ef3e2b4cd1d14643d73aa3cca93c8a56f9cadfc",
+      "author": {
+        "name": "Aliaksei_Nazarau",
+        "email": "nalex2004@gmail.com",
+        "username": "NAlex2004"
+      },
+      "committer": {
+        "name": "Aliaksei_Nazarau",
+        "email": "nalex2004@gmail.com",
+        "username": "NAlex2004"
+      },
+      "added": [
+
+      ],
+      "removed": [
+        "Manager_2/ErEro_11032019.json"
+      ],
+      "modified": [
+
+      ]
+    }
+  ],
+  "head_commit": {
+    "id": "9ef3e2b4cd1d14643d73aa3cca93c8a56f9cadfc",
+    "tree_id": "148775d5da28de08b817df42dce397e08786be1d",
+    "distinct": true,
+    "message": ".",
+    "timestamp": "2019-03-04T10:36:27+03:00",
+    "url": "https://github.com/NAlex2004/SalesData/commit/9ef3e2b4cd1d14643d73aa3cca93c8a56f9cadfc",
+    "author": {
+      "name": "Aliaksei_Nazarau",
+      "email": "nalex2004@gmail.com",
+      "username": "NAlex2004"
+    },
+    "committer": {
+      "name": "Aliaksei_Nazarau",
+      "email": "nalex2004@gmail.com",
+      "username": "NAlex2004"
+    },
+    "added": [
+
+    ],
+    "removed": [
+      "Manager_2/ErEro_11032019.json"
+    ],
+    "modified": [
+
+    ]
+  },
+  "repository": {
+
+    },
+    "html_url": "https://github.com/NAlex2004/SalesData",
+    "description": "Data for Sales project",
+    "fork": false,
+    "url": "https://github.com/NAlex2004/SalesData",
+    "forks_url": "https://api.github.com/repos/NAlex2004/SalesData/forks",
+    "keys_url": "https://api.github.com/repos/NAlex2004/SalesData/keys{/key_id}",
+    "collaborators_url": "https://api.github.com/repos/NAlex2004/SalesData/collaborators{/collaborator}",
+    "teams_url": "https://api.github.com/repos/NAlex2004/SalesData/teams",
+    "hooks_url": "https://api.github.com/repos/NAlex2004/SalesData/hooks",
+    "issue_events_url": "https://api.github.com/repos/NAlex2004/SalesData/issues/events{/number}",
+    "events_url": "https://api.github.com/repos/NAlex2004/SalesData/events",
+    "assignees_url": "https://api.github.com/repos/NAlex2004/SalesData/assignees{/user}",
+    "branches_url": "https://api.github.com/repos/NAlex2004/SalesData/branches{/branch}",
+    "tags_url": "https://api.github.com/repos/NAlex2004/SalesData/tags",
+    "blobs_url": "https://api.github.com/repos/NAlex2004/SalesData/git/blobs{/sha}",
+    "git_tags_url": "https://api.github.com/repos/NAlex2004/SalesData/git/tags{/sha}",
+    "git_refs_url": "https://api.github.com/repos/NAlex2004/SalesData/git/refs{/sha}",
+    "trees_url": "https://api.github.com/repos/NAlex2004/SalesData/git/trees{/sha}",
+    "statuses_url": "https://api.github.com/repos/NAlex2004/SalesData/statuses/{sha}",
+    "languages_url": "https://api.github.com/repos/NAlex2004/SalesData/languages",
+    "stargazers_url": "https://api.github.com/repos/NAlex2004/SalesData/stargazers",
+    "contributors_url": "https://api.github.com/repos/NAlex2004/SalesData/contributors",
+    "subscribers_url": "https://api.github.com/repos/NAlex2004/SalesData/subscribers",
+    "subscription_url": "https://api.github.com/repos/NAlex2004/SalesData/subscription",
+    "commits_url": "https://api.github.com/repos/NAlex2004/SalesData/commits{/sha}",
+    "git_commits_url": "https://api.github.com/repos/NAlex2004/SalesData/git/commits{/sha}",
+    "comments_url": "https://api.github.com/repos/NAlex2004/SalesData/comments{/number}",
+    "issue_comment_url": "https://api.github.com/repos/NAlex2004/SalesData/issues/comments{/number}",
+    "contents_url": "https://api.github.com/repos/NAlex2004/SalesData/contents/{+path}",
+    "compare_url": "https://api.github.com/repos/NAlex2004/SalesData/compare/{base}...{head}",
+    "merges_url": "https://api.github.com/repos/NAlex2004/SalesData/merges",
+    "archive_url": "https://api.github.com/repos/NAlex2004/SalesData/{archive_format}{/ref}",
+    "downloads_url": "https://api.github.com/repos/NAlex2004/SalesData/downloads",
+    "issues_url": "https://api.github.com/repos/NAlex2004/SalesData/issues{/number}",
+    "pulls_url": "https://api.github.com/repos/NAlex2004/SalesData/pulls{/number}",
+    "milestones_url": "https://api.github.com/repos/NAlex2004/SalesData/milestones{/number}",
+    "notifications_url": "https://api.github.com/repos/NAlex2004/SalesData/notifications{?since,all,participating}",
+    "labels_url": "https://api.github.com/repos/NAlex2004/SalesData/labels{/name}",
+    "releases_url": "https://api.github.com/repos/NAlex2004/SalesData/releases{/id}",
+    "deployments_url": "https://api.github.com/repos/NAlex2004/SalesData/deployments",
+    "created_at": 1551433621,
+    "updated_at": "2019-03-01T11:45:12Z",
+    "pushed_at": 1551684998,
+    "git_url": "git://github.com/NAlex2004/SalesData.git",
+    "ssh_url": "git@github.com:NAlex2004/SalesData.git",
+    "clone_url": "https://github.com/NAlex2004/SalesData.git",
+    "svn_url": "https://github.com/NAlex2004/SalesData",
+    "homepage": null,
+    "size": 2,
+    "stargazers_count": 0,
+    "watchers_count": 0,
+    "language": null,
+    "has_issues": true,
+    "has_projects": true,
+    "has_downloads": true,
+    "has_wiki": true,
+    "has_pages": false,
+    "forks_count": 0,
+    "mirror_url": null,
+    "archived": false,
+    "open_issues_count": 0,
+    "license": null,
+    "forks": 0,
+    "open_issues": 0,
+    "watchers": 0,
+    "default_branch": "master",
+    "stargazers": 0,
+    "master_branch": "master"
+  },
+  "pusher": {
+    "name": "NAlex2004",
+    "email": "NAlex2004@gmail.com"
+  },
+  "sender": {
+    "login": "NAlex2004",
+    "id": 26476326,
+    "node_id": "MDQ6VXNlcjI2NDc2MzI2",
+    "avatar_url": "https://avatars2.githubusercontent.com/u/26476326?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/NAlex2004",
+    "html_url": "https://github.com/NAlex2004",
+    "followers_url": "https://api.github.com/users/NAlex2004/followers",
+    "following_url": "https://api.github.com/users/NAlex2004/following{/other_user}",
+    "gists_url": "https://api.github.com/users/NAlex2004/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/NAlex2004/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/NAlex2004/subscriptions",
+    "organizations_url": "https://api.github.com/users/NAlex2004/orgs",
+    "repos_url": "https://api.github.com/users/NAlex2004/repos",
+    "events_url": "https://api.github.com/users/NAlex2004/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/NAlex2004/received_events",
+    "type": "User",
+    "site_admin": false
+  }
+}

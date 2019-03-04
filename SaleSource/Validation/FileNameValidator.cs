@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Sales.SaleSource.Validation
 {
 
-    public class FileNameValidator// : IFileNameValidator
+    public class FileNameValidator
     {
         private const string DATE_FORMAT = "ddMMyyyy";
         private const int INITIALS_LENGTH = 5;

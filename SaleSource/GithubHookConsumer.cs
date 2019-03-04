@@ -32,7 +32,7 @@ namespace Sales.SaleSource
             return urlBuilder.ToString();
         }        
 
-        private void ProcessCommitFilesWithState(Dictionary<string, FileState> urls, IList<string> fileNames, FileState fileState)
+        private void ProcessCommitFilesWithState(Dictionary<string, FileState> urls, IList<string> fileNames, FileState fileState, GithubRepository repository)
         {
             foreach (string fileName in fileNames)
             {
@@ -42,17 +42,19 @@ namespace Sales.SaleSource
                     continue;                    
                 }
 
-                if (urls.ContainsKey(fileName))
+                string url = MakeGetUrl(fileName, repository);
+                if (urls.ContainsKey(url))
                 {
-                    urls[fileName] = fileState;
+                    urls[url] = fileState;
                 }
                 else
                 {
-                    urls.Add(fileName, fileState);
+                    urls.Add(url, fileState);
                 }
             }
         }
 
+        // hook is not null
         protected virtual IEnumerable<string> GetFileUrls(GithubHook hook)
         {
             Dictionary<string, FileState> urls = new Dictionary<string, FileState>();
@@ -60,13 +62,34 @@ namespace Sales.SaleSource
             //hook.Commits.OrderBy(c => c.Timestamp)
             foreach (var commit in hook.Commits)
             {
-                ProcessCommitFilesWithState(urls, commit.Added, FileState.Added);
-                ProcessCommitFilesWithState(urls, commit.Modified, FileState.Modified);
-                ProcessCommitFilesWithState(urls, commit.Removed, FileState.Removed);
+                ProcessCommitFilesWithState(urls, commit.Added, FileState.Added, hook.Repository);
+                ProcessCommitFilesWithState(urls, commit.Modified, FileState.Modified, hook.Repository);
+                ProcessCommitFilesWithState(urls, commit.Removed, FileState.Removed, hook.Repository);
             }
 
             var result = urls.Where(entry => entry.Value != FileState.Removed).Select(entry => entry.Key);
             return result;
+        }
+
+        protected GithubHook GetHookFromJson(string hookJson)
+        {
+            GithubHook hook = null;
+            try
+            {
+                hook = JsonConvert.DeserializeObject<GithubHook>(hookJson);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            if (hook.Commits == null || hook.Commits.Count == 0
+                || hook.Repository == null || string.IsNullOrEmpty(hook.Repository.Full_Name))
+            {
+                return null;
+            }
+
+            return hook;
         }
 
         public async virtual Task ConsumeHookAsync(string hookJson)
@@ -76,18 +99,9 @@ namespace Sales.SaleSource
                 return;
             }
 
-            GithubHook hook = null;
-            try
-            {
-                hook = JsonConvert.DeserializeObject<GithubHook>(hookJson);
-            }
-            catch (JsonSerializationException)
-            {
-                return;
-            }
+            GithubHook hook = GetHookFromJson(hookJson);
 
-            if (hook.Commits == null || hook.Commits.Count == 0 
-                || hook.Repository == null || string.IsNullOrEmpty(hook.Repository.Full_Name))
+            if (hook == null)
             {
                 return;
             }

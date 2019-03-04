@@ -42,6 +42,8 @@ namespace Sales.SaleSource
                             return sales;
                         });
 
+                    salesFromFile = salesFromFile.Where(s => s != null && s.CustomerName != null && s.ProductName != null).Select(s => s).ToList();
+
                     if (salesFromFile != null && salesFromFile.Count > 0)
                     {                        
                         SaleDataDto saleData = new SaleDataDto()

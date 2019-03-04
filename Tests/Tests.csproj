@@ -59,6 +59,10 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\FileHandlerFactoryTestClass.cs" />
+    <Compile Include="Classes\FileHandlerTestClass.cs" />
+    <Compile Include="Classes\HookConsumerTestClass.cs" />
+    <Compile Include="Classes\SaleFileHandlerTestClass.cs" />
     <Compile Include="DbTests.cs" />
     <Compile Include="StorageTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -85,6 +89,9 @@
       <Project>{58170bd4-8601-486f-b120-3e252f92e575}</Project>
       <Name>Storage</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Data\" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
