@@ -17,8 +17,11 @@ namespace Sales.SaleSource
 {
     public class GithubSaleFileHandler : SaleFileHandlerBase
     {
-        public GithubSaleFileHandler(ISalesDataManager salesDataManager) : base(salesDataManager)
+        protected string token;
+
+        public GithubSaleFileHandler(ISalesDataManager salesDataManager, string token) : base(salesDataManager)
         {
+            this.token = token;
         }
 
         protected async virtual Task<SaleDataDto> GetSalesFromGithub(string url)
@@ -30,7 +33,7 @@ namespace Sales.SaleSource
                 try
                 {
                     httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "NAlex2004");
-                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Token", "..token here..");
+                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Token", token);
 
                     string responseBody = await httpClient.GetStringAsync(url);
                     List<SaleDto> salesFromFile = await Task.Run(() =>

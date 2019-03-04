@@ -56,13 +56,14 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\FileHandlerFactoryTestClass.cs" />
     <Compile Include="Classes\FileHandlerTestClass.cs" />
     <Compile Include="Classes\HookConsumerTestClass.cs" />
-    <Compile Include="Classes\SaleFileHandlerTestClass.cs" />
+    <Compile Include="Classes\EmptySaleFileHandlerTestClass.cs" />
     <Compile Include="DbTests.cs" />
     <Compile Include="StorageTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

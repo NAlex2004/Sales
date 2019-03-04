@@ -4,6 +4,8 @@ using Tests.Classes;
 using System.IO;
 using Sales.SaleSource.Github;
 using System.Linq;
+using Sales.SaleSource;
+using Sales.Storage.DTO;
 
 namespace Tests
 {
@@ -11,6 +13,21 @@ namespace Tests
     public class HookAndFileTests
     {
         HookConsumerTestClass hookConsumer = new HookConsumerTestClass();
+        SaleFileHandlerBase fileHandlerTestClass;
+
+        FileHandlerTestClass FileHandler
+        {
+            get
+            {
+                if (fileHandlerTestClass == null)
+                {
+                    FileHandlerFactoryTestClass factory = new FileHandlerFactoryTestClass(false);
+                    fileHandlerTestClass = factory.GetSaleFileHandler();
+                }
+
+                return fileHandlerTestClass as FileHandlerTestClass;
+            }
+        }
 
         private GithubHook GetHook()
         {            
@@ -76,6 +93,15 @@ namespace Tests
         {
             hookConsumer.ConsumeHook(null);
             hookConsumer.ConsumeHook(File.ReadAllText("../../Data/hook1.json"));
+        }
+
+        [TestMethod]
+        public void GetSalesFromGithub_FailsOnBadToken()
+        {
+            string url = "https://api.github.com/repos/NAlex2004/SalesData/contents/Manager_2/AlNaz_04032019.json";
+            SaleDataDto saleData = FileHandler.GetSalesFromGithubSync(url);
+
+            Assert.IsNull(saleData);
         }
     }
 }

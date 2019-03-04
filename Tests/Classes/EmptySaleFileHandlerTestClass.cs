@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Tests.Classes
 {
-    public class SaleFileHandlerTestClass : SaleFileHandlerBase
+    public class EmptySaleFileHandlerTestClass : SaleFileHandlerBase
     {
-        public SaleFileHandlerTestClass() : base(new SaleDbDataManager())
+        public EmptySaleFileHandlerTestClass() : base(new SaleDbDataManager())
         {
         }
 

@@ -5,14 +5,41 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Configuration;
 
 namespace Tests.Classes
 {
     public class FileHandlerFactoryTestClass : ISaleFileHandlerFactory
     {
+        bool generateEmpty;
+        string token;
+
+        public FileHandlerFactoryTestClass(bool generateEmptyHandlers = true)
+        {
+            generateEmpty = generateEmptyHandlers;
+        }
+
+        private string Token
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(token))
+                {
+                    token = ConfigurationManager.AppSettings["token"];
+                }
+
+                return token;
+            }
+        }
+
         public SaleFileHandlerBase GetSaleFileHandler()
         {
-            return new SaleFileHandlerTestClass();
+            if (generateEmpty)
+            {
+                return new EmptySaleFileHandlerTestClass();
+            }
+
+            return new FileHandlerTestClass(Token);
         }
     }
 }

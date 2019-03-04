@@ -10,9 +10,16 @@ namespace Sales.SaleSource.Factory
 {
     public class GithubSaleFileHandlerFactory : ISaleFileHandlerFactory
     {
+        private string token;
+
+        public GithubSaleFileHandlerFactory(string githubToken)
+        {
+            token = githubToken;
+        }
+
         public SaleFileHandlerBase GetSaleFileHandler()
         {
-            return new GithubSaleFileHandler(new SaleDbDataManager());
+            return new GithubSaleFileHandler(new SaleDbDataManager(), token);
         }
     }
 }
