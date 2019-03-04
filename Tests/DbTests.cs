@@ -215,13 +215,13 @@ namespace Tests
                 int initialProductsCount = unitOfWork.Products.Get().Count();
                 int initialSalesCount = unitOfWork.Sales.Get().Count();
 
-                bool res = manager.AddOrUpdateSaleDataAsync(saleDataDto).GetAwaiter().GetResult();
+                var res = manager.AddOrUpdateSaleDataAsync(saleDataDto).GetAwaiter().GetResult();
 
                 int savedSalesCount = unitOfWork.Sales.Get().Count();
                 int savedCustomersCount = unitOfWork.Customers.Get().Count();
                 int savedProductsCount = unitOfWork.Products.Get().Count();
 
-                Assert.IsTrue(res);
+                Assert.IsTrue(res.Succeeded);
                 Assert.AreEqual(customersCount + initialCustomersCount, savedCustomersCount);
                 Assert.AreEqual(productsCount + initialProductsCount, savedProductsCount);
                 Assert.AreEqual(salesCount + initialSalesCount, savedSalesCount);
@@ -239,7 +239,7 @@ namespace Tests
 
                 res = manager.AddOrUpdateSaleDataAsync(saleDataDto).GetAwaiter().GetResult();
 
-                Assert.IsTrue(res);
+                Assert.IsTrue(res.Succeeded);
                 savedSalesCount = unitOfWork.Sales.Get().Count();
                 savedCustomersCount = unitOfWork.Customers.Get().Count();
                 savedProductsCount = unitOfWork.Products.Get().Count();

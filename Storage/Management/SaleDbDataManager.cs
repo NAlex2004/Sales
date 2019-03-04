@@ -13,7 +13,7 @@ namespace Sales.Storage.Management
 {
     public partial class SaleDbDataManager : ISalesDataManager
     {
-        protected ISalesUnitOfWork unitOfWork;
+        protected ISalesUnitOfWork unitOfWork;        
 
         public SaleDbDataManager(ISalesUnitOfWork salesUnitOfWork)
         {
@@ -25,11 +25,12 @@ namespace Sales.Storage.Management
         {
         }
 
-        public async Task<bool> AddOrUpdateSaleDataAsync(SaleDataDto saleData)
+        public async Task<SaleManagementResult> AddOrUpdateSaleDataAsync(SaleDataDto saleData)
         {
             if (saleData == null || string.IsNullOrEmpty(saleData.SourceFileName))
             {
-                return false;
+                string message = saleData == null ? "saleData is null" : "SourceFileName is null or empty";
+                return new SaleManagementResult() { Succeeded = false, ErrorMessage = message };
             }
 
             // Group data
@@ -44,8 +45,8 @@ namespace Sales.Storage.Management
                 }).ToList();
 
             SourceFile sourceFile = await unitOfWork.SourceFiles.Get(file => file.FileName.Equals(saleData.SourceFileName)).FirstOrDefaultAsync();
-            
-            bool addOrUpdateResult = false;
+
+            SaleManagementResult addOrUpdateResult;
             addOrUpdateResult = sourceFile == null
                 ? await AddSaleDataAsync(saleData)
                 : await UpdateSaleDataAsync(saleData, sourceFile);
@@ -53,9 +54,9 @@ namespace Sales.Storage.Management
             return addOrUpdateResult;
         }
 
-        protected virtual async Task<bool> AddSaleDetailsDataAsync(IList<SaleDto> saleDetailsData)
+        protected virtual async Task<SaleManagementResult> AddSaleDetailsDataAsync(IList<SaleDto> saleDetailsData)
         {
-            bool result = await Task.Run(() =>
+            SaleManagementResult result = await Task.Run(() =>
             {
                 var mapper = Mappings.GetMapper();
                 try
@@ -67,21 +68,28 @@ namespace Sales.Storage.Management
                         sale.Product = unitOfWork.Products.Add(sale.Product);
                         unitOfWork.Sales.Add(sale);
                     }
+                    
+                     unitOfWork.SaveChanges();
 
-                    unitOfWork.SaveChanges();
-
-                    return true;
+                    return new SaleManagementResult()
+                    {
+                        Succeeded = true                        
+                    };
                 }
                 catch (Exception e)
                 {
-                    return false;
+                    return new SaleManagementResult()
+                    {
+                        Succeeded = false,
+                        ErrorMessage = GetLastErrorMessage(e)
+                    };
                 }
             });
 
             return result;
         }
 
-        protected virtual async Task<bool> AddSaleDataAsync(SaleDataDto saleData)
+        protected virtual async Task<SaleManagementResult> AddSaleDataAsync(SaleDataDto saleData)
         {
             SourceFile sourceFile = new SourceFile()
             {
@@ -89,50 +97,85 @@ namespace Sales.Storage.Management
             };
             unitOfWork.SourceFiles.Add(sourceFile);
 
-            bool result = await AddSaleDetailsDataAsync(saleData.Sales);
+            SaleManagementResult result = await AddSaleDetailsDataAsync(saleData.Sales);
+            result.FileName = saleData.SourceFileName;
 
             return result;
         }
 
-        protected virtual async Task<bool> UpdateSaleDataAsync(SaleDataDto saleData, SourceFile sourceFile)
+        protected virtual async Task<SaleManagementResult> UpdateSaleDataAsync(SaleDataDto saleData, SourceFile sourceFile)
         {
             var deleted = unitOfWork.Sales.Delete(sale => sale.SourceFileId == sourceFile.Id);  
             for (int i=0; i<saleData.Sales.Count; i++)
             {
                 saleData.Sales[i].SourceFileId = sourceFile.Id;
             }
-            bool result = await AddSaleDetailsDataAsync(saleData.Sales);            
+            SaleManagementResult result = await AddSaleDetailsDataAsync(saleData.Sales);
+            result.FileName = saleData.SourceFileName;
+
             return result;
         }
 
-        public async Task<bool> AddErrorAsync(SaleDataDto saleData)
+        public async Task<SaleManagementResult> AddErrorAsync(SaleManagementResult badResult)
         {
+            SaleManagementResult result = new SaleManagementResult()
+            {
+                Succeeded = false,
+                FileName = badResult.FileName                
+            };
+
             try
             {
-                unitOfWork.ErrorFiles.Add(new ErrorFile() { FileName = saleData.SourceFileName });
-                int res = await unitOfWork.SaveChangesAsync();
-                return res > 0;
+                unitOfWork.ErrorFiles.Add(new ErrorFile()
+                {
+                    FileName = badResult.FileName,
+                    ErrorDescription = badResult.ErrorMessage
+                });
+                int savedCount = await unitOfWork.SaveChangesAsync();
+                result.Succeeded = savedCount > 0;
+                result.ErrorMessage = savedCount > 0 ? "" : "Data is not saved";                
             }
             catch (Exception e)
             {
-                return false;
+                result.ErrorMessage = GetLastErrorMessage(e);
             }
+
+            return result;
         }
 
-        public async Task<bool> RemoveErrorAsync(SaleDataDto saleData)
+        private string GetLastErrorMessage(Exception exception)
         {
-            bool result = false;
+            while (exception.InnerException != null)
+            {
+                exception = exception.InnerException;
+            }
+
+            return exception.Message;
+        }
+
+        public async Task<SaleManagementResult> RemoveErrorAsync(SaleManagementResult badResult)
+        {
+            SaleManagementResult result = new SaleManagementResult()
+            {
+                FileName = badResult.FileName,
+                Succeeded = false
+            };
+
             try
             {
-                var deleted = unitOfWork.ErrorFiles.Delete(error => error.FileName == saleData.SourceFileName);
+                var deleted = unitOfWork.ErrorFiles.Delete(error => error.FileName == badResult.FileName);
                 if (deleted.Count() > 0)
                 {
-                    int res = await unitOfWork.SaveChangesAsync();
-                    result = res > 0;
+                    int savedCount = await unitOfWork.SaveChangesAsync();
+                    result.Succeeded = savedCount > 0;
+                    result.ErrorMessage = savedCount > 0 ? "" : "Data is not saved";                    
+
+                    return result;
                 }                
             }
             catch (Exception e)
-            {                
+            {
+                result.ErrorMessage = GetLastErrorMessage(e);                
             }
 
             return result;

@@ -45,9 +45,18 @@ namespace Sales.SaleSource
                             return sales;
                         });
 
-                    salesFromFile = salesFromFile.Where(s => s != null && s.CustomerName != null && s.ProductName != null).Select(s => s).ToList();
+                    // If we'd like to take any correct data from file, skipping incorrect
+                    //salesFromFile = salesFromFile.Where(s => s != null && s.HasValidData()).Select(s => s).ToList();
 
-                    if (salesFromFile != null && salesFromFile.Count > 0)
+                    // Let's assume, all data must be correct
+                    if (salesFromFile == null)
+                    {
+                        return null;
+                    }
+
+                    bool IsAllDataCorrect = salesFromFile.Count > 0 && !salesFromFile.Any(s => s == null || !s.HasValidData());
+
+                    if (IsAllDataCorrect)
                     {                        
                         SaleDataDto saleData = new SaleDataDto()
                         {
@@ -71,26 +80,30 @@ namespace Sales.SaleSource
             SaleDataDto saleData = await GetSalesFromGithub(location);
             Uri uri = new Uri(location);
             string fileName = Path.GetFileName(uri.LocalPath);
+            SaleManagementResult result;
 
             if (saleData != null)
             {
                 saleData.SourceFileName = fileName;
-                bool success = await salesDataManager.AddOrUpdateSaleDataAsync(saleData);
-                if (success)
+                result = await salesDataManager.AddOrUpdateSaleDataAsync(saleData);
+                if (result.Succeeded)
                 {
-                    await salesDataManager.RemoveErrorAsync(saleData);
+                    await salesDataManager.RemoveErrorAsync(new SaleManagementResult() { FileName = saleData.SourceFileName });
                     return;
                 }                
             }
             else
             {
-                saleData = new SaleDataDto()
+                result = new SaleManagementResult()
                 {
-                    SourceFileName = fileName
+                    Succeeded = false,
+                    ErrorMessage = "[HandleSaleFileAsync]: saleData is null"
                 };
             }
-            
-            await salesDataManager.AddErrorAsync(saleData);            
+
+            result.FileName = fileName;
+
+            await salesDataManager.AddErrorAsync(result);            
         }
 
         

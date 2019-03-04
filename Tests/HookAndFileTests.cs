@@ -9,6 +9,8 @@ using Sales.Storage.DTO;
 using Sales.Storage.Management;
 using Sales.DAL.Interfaces;
 using Sales.DAL.Database;
+using Sales.SaleSource.Factory;
+using Sales.SaleSource.Validation;
 
 namespace Tests
 {
@@ -17,6 +19,7 @@ namespace Tests
     {
         HookConsumerTestClass hookConsumer = new HookConsumerTestClass();
         SaleFileHandlerBase fileHandlerTestClass;
+        string token = File.ReadAllText("../../Data/token.txt");
 
         FileHandlerTestClass FileHandler
         {
@@ -122,16 +125,16 @@ namespace Tests
         public void Real_SaleFileHandling_ErrorRemoved_SecondTimeSameDataAddsCorrect()
         {
             string url = "https://api.github.com/repos/NAlex2004/SalesData/contents/Manager_2/AlNaz_04032019.json";
-            string token = File.ReadAllText("../../Data/token.txt");
+            //string token = File.ReadAllText("../../Data/token.txt");
 
             var manager = new SaleDbDataManager();
             using (GithubSaleFileHandler fileHandler = new GithubSaleFileHandler(manager, token))
             {                                
                 using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new Sales.SalesEntity.Entity.SalesDbContext()))
                 {
-                    bool errorAdded = manager.AddErrorAsync(new SaleDataDto() { SourceFileName = "AlNaz_04032019.json" }).GetAwaiter().GetResult();
+                    var errorAdded = manager.AddErrorAsync(new SaleManagementResult() { FileName = "AlNaz_04032019.json", ErrorMessage = "Test error" }).GetAwaiter().GetResult();
 
-                    Assert.IsTrue(errorAdded);
+                    Assert.IsTrue(errorAdded.Succeeded);
 
                     int errors = unitOfWork.ErrorFiles.Get().Count();                    
                     fileHandler.HandleSaleFileAsync(url).GetAwaiter().GetResult();
@@ -141,8 +144,64 @@ namespace Tests
                 }
 
                 fileHandler.HandleSaleFileAsync(url).GetAwaiter().GetResult();
+            }            
+        }
+
+        [TestMethod]
+        public void GithubHookConsumer_NothingInDb_WhenBadHook()
+        {
+            ISaleFileHandlerFactory fileHandlerFactory = new GithubSaleFileHandlerFactory(token);
+            IHookConsumer hookConsumer = new GithubHookConsumer(fileHandlerFactory, name => FileNameValidator.Validate(name));
+
+            using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new Sales.SalesEntity.Entity.SalesDbContext()))
+            {
+                int customersCount = unitOfWork.Customers.Get().Count();
+                int productsCount = unitOfWork.Products.Get().Count();
+                int sourceFilesCount = unitOfWork.SourceFiles.Get().Count();
+                int salesCount = unitOfWork.Sales.Get().Count();
+                int errorsCount = unitOfWork.ErrorFiles.Get().Count();
+                hookConsumer.ConsumeHookAsync("../../Data/bad_hook1.json").GetAwaiter().GetResult();
+                int customersCountAfter = unitOfWork.Customers.Get().Count();
+                int productsCountAfter = unitOfWork.Products.Get().Count();
+                int sourceFilesCountAfter = unitOfWork.SourceFiles.Get().Count();
+                int salesCountAfter = unitOfWork.Sales.Get().Count();
+                int errorsCountAfter = unitOfWork.ErrorFiles.Get().Count();
+
+                Assert.AreEqual(customersCount, customersCountAfter);
+                Assert.AreEqual(productsCount, productsCountAfter);
+                Assert.AreEqual(sourceFilesCount, sourceFilesCountAfter);
+                Assert.AreEqual(salesCount, salesCountAfter);
+                Assert.AreEqual(errorsCount, errorsCountAfter);
+            }            
+        }
+
+        [TestMethod]
+        public void GithubHookConsumer_Ok_WhenGoodHook()
+        {
+            ISaleFileHandlerFactory fileHandlerFactory = new GithubSaleFileHandlerFactory(token);
+            IHookConsumer hookConsumer = new GithubHookConsumer(fileHandlerFactory, name => FileNameValidator.Validate(name));
+
+            using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new Sales.SalesEntity.Entity.SalesDbContext()))
+            {
+                unitOfWork.Customers.Delete(x => true);
+                unitOfWork.Products.Delete(x => true);
+                unitOfWork.SourceFiles.Delete(x => true);
+                unitOfWork.Sales.Delete(x => true);
+                unitOfWork.ErrorFiles.Delete(x => true);
+                string hookJson = File.ReadAllText("../../Data/hook1.json");
+                hookConsumer.ConsumeHookAsync(hookJson).GetAwaiter().GetResult();
+                int customersCountAfter = unitOfWork.Customers.Get().Count();
+                int productsCountAfter = unitOfWork.Products.Get().Count();
+                int sourceFilesCountAfter = unitOfWork.SourceFiles.Get().Count();
+                int salesCountAfter = unitOfWork.Sales.Get().Count();
+                int errorsCountAfter = unitOfWork.ErrorFiles.Get().Count();
+
+                //Assert.AreEqual(customersCount, customersCountAfter);
+                //Assert.AreEqual(productsCount, productsCountAfter);
+                //Assert.AreEqual(sourceFilesCount, sourceFilesCountAfter);
+                //Assert.AreEqual(salesCount, salesCountAfter);
+                //Assert.AreEqual(errorsCount, errorsCountAfter);
             }
-            
         }
     }
 }

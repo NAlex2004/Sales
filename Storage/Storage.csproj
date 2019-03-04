@@ -56,6 +56,7 @@
     <Compile Include="Management\ISalesDataManager.cs" />
     <Compile Include="Management\SaleDbDataManager.cs" />
     <Compile Include="Management\SaleDbDataManager.Mappings.cs" />
+    <Compile Include="Management\SaleManagementResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

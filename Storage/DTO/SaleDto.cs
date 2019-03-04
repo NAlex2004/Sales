@@ -13,5 +13,12 @@ namespace Sales.Storage.DTO
         public string ProductName { get; set; }
         public decimal TotalSum { get; set; }
         public int SourceFileId { get; set; }
+
+        public bool HasValidData()
+        {
+            return !string.IsNullOrEmpty(CustomerName)
+                && !string.IsNullOrEmpty(ProductName)
+                && TotalSum >= 0m;
+        }
     }
 }
