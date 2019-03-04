@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
+using System.IO;
 
 namespace Tests.Classes
 {
@@ -25,7 +26,8 @@ namespace Tests.Classes
             {
                 if (string.IsNullOrEmpty(token))
                 {
-                    token = ConfigurationManager.AppSettings["token"];
+                    //token = ConfigurationManager.AppSettings["token"];
+                    token = File.ReadAllText("../../Data/token.txt");
                 }
 
                 return token;

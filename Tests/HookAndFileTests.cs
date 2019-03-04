@@ -6,6 +6,9 @@ using Sales.SaleSource.Github;
 using System.Linq;
 using Sales.SaleSource;
 using Sales.Storage.DTO;
+using Sales.Storage.Management;
+using Sales.DAL.Interfaces;
+using Sales.DAL.Database;
 
 namespace Tests
 {
@@ -99,9 +102,47 @@ namespace Tests
         public void GetSalesFromGithub_FailsOnBadToken()
         {
             string url = "https://api.github.com/repos/NAlex2004/SalesData/contents/Manager_2/AlNaz_04032019.json";
-            SaleDataDto saleData = FileHandler.GetSalesFromGithubSync(url);
+            FileHandlerTestClass fileHandler = new FileHandlerTestClass("123");
+            SaleDataDto saleData = fileHandler.GetSalesFromGithubSync(url);
 
             Assert.IsNull(saleData);
+        }
+
+        [TestMethod]
+        public void GetSalesFromGithub_SucceededWithCorrectToken()
+        {
+            string url = "https://api.github.com/repos/NAlex2004/SalesData/contents/Manager_2/AlNaz_04032019.json";            
+            SaleDataDto saleData = FileHandler.GetSalesFromGithubSync(url);
+
+            Assert.AreEqual(5, saleData.Sales.Count);
+            Assert.AreEqual(1348.7m, saleData.Sales.Sum(s => s.TotalSum));
+        }
+
+        [TestMethod]
+        public void Real_SaleFileHandling_ErrorRemoved_SecondTimeSameDataAddsCorrect()
+        {
+            string url = "https://api.github.com/repos/NAlex2004/SalesData/contents/Manager_2/AlNaz_04032019.json";
+            string token = File.ReadAllText("../../Data/token.txt");
+
+            var manager = new SaleDbDataManager();
+            using (GithubSaleFileHandler fileHandler = new GithubSaleFileHandler(manager, token))
+            {                                
+                using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new Sales.SalesEntity.Entity.SalesDbContext()))
+                {
+                    bool errorAdded = manager.AddErrorAsync(new SaleDataDto() { SourceFileName = "AlNaz_04032019.json" }).GetAwaiter().GetResult();
+
+                    Assert.IsTrue(errorAdded);
+
+                    int errors = unitOfWork.ErrorFiles.Get().Count();                    
+                    fileHandler.HandleSaleFileAsync(url).GetAwaiter().GetResult();
+                    int errorsAfter = unitOfWork.ErrorFiles.Get().Count();
+
+                    Assert.AreEqual(errors - 1, errorsAfter);
+                }
+
+                fileHandler.HandleSaleFileAsync(url).GetAwaiter().GetResult();
+            }
+            
         }
     }
 }
