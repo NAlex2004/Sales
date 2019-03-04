@@ -4,15 +4,15 @@ using System.Threading.Tasks;
 
 namespace Sales.SaleSource
 {
-    public abstract class SaleFileHandlerBase: IDisposable
+    public abstract class SalesHandlerBase: IDisposable
     {
         protected ISalesDataManager salesDataManager;
-        public SaleFileHandlerBase(ISalesDataManager salesDataManager)
+        public SalesHandlerBase(ISalesDataManager salesDataManager)
         {
             this.salesDataManager = salesDataManager ?? throw new ArgumentNullException();
         }
 
-        public abstract Task HandleSaleFileAsync(string location);
+        public abstract Task HandleSaleSourceAsync(ISaleDataSource saleDataSource);
 
         #region IDisposable Support
         private bool disposedValue = false;

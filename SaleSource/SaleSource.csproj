@@ -45,8 +45,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Factory\ISaleFileHandlerFactory.cs" />
-    <Compile Include="Factory\GithubSaleFileHandlerFactory.cs" />
+    <Compile Include="Factory\ISalesHandlerFactory.cs" />
+    <Compile Include="Factory\GithubSalesHandlerFactory.cs" />
+    <Compile Include="GithubSaleDataSource.cs" />
     <Compile Include="Github\FileState.cs" />
     <Compile Include="Github\GithubCommit.cs" />
     <Compile Include="Github\GithubFileResponse.cs" />
@@ -54,8 +55,9 @@
     <Compile Include="Github\GithubRepository.cs" />
     <Compile Include="GithubHookConsumer.cs" />
     <Compile Include="IHookConsumer.cs" />
-    <Compile Include="GithubSaleFileHandler.cs" />
-    <Compile Include="SaleFileHandlerBase.cs" />
+    <Compile Include="GithubSalesHandler.cs" />
+    <Compile Include="ISaleDataSource.cs" />
+    <Compile Include="SalesHandlerBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Validation\FileNameValidator.cs" />
   </ItemGroup>

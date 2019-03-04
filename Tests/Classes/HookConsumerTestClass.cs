@@ -14,7 +14,7 @@ namespace Tests.Classes
     {
         class HookConsumer : GithubHookConsumer
         {
-            public HookConsumer(ISaleFileHandlerFactory saleFileHandlerFactory, Func<string, bool> fileNameValidator = null) : base(saleFileHandlerFactory, fileNameValidator)
+            public HookConsumer(ISalesHandlerFactory saleFileHandlerFactory, string token, Func<string, bool> fileNameValidator = null) : base(saleFileHandlerFactory, token, fileNameValidator)
             {
             }
 
@@ -43,10 +43,10 @@ namespace Tests.Classes
 
         private HookConsumer hookConsumer;
 
-        public HookConsumerTestClass()
+        public HookConsumerTestClass(string token)
         {
-            ISaleFileHandlerFactory handlerFactory = new FileHandlerFactoryTestClass();
-            hookConsumer = new HookConsumer(handlerFactory, fileName => FileNameValidator.Validate(fileName));
+            ISalesHandlerFactory handlerFactory = new FileHandlerFactoryTestClass();
+            hookConsumer = new HookConsumer(handlerFactory, token, fileName => FileNameValidator.Validate(fileName));
         }
 
         public IEnumerable<string> GetFileUrlsFromHook(GithubHook hook)

@@ -9,24 +9,25 @@ using Sales.Storage.Management;
 
 namespace Tests.Classes
 {
-    public class FileHandlerTestClass : GithubSaleFileHandler
+    public class FileHandlerTestClass : GithubSalesHandler
     {
-        public FileHandlerTestClass(ISalesDataManager salesDataManager, string token) : base(salesDataManager, token)
+        string token;
+
+        public FileHandlerTestClass(ISalesDataManager salesDataManager, string token) : base(salesDataManager)
         {
+            this.token = token;
         }
 
-        public FileHandlerTestClass(string token) : base(new SaleDbDataManager(), token)
+        public FileHandlerTestClass(string token) : base(new SaleDbDataManager())
         {
+            this.token = token;
         }
 
-        protected override Task<SaleDataDto> GetSalesFromGithub(string url)
-        {
-            return base.GetSalesFromGithub(url);
-        }
-
+        
         public SaleDataDto GetSalesFromGithubSync(string url)
         {
-            return GetSalesFromGithub(url).GetAwaiter().GetResult();
+            ISaleDataSource dataSource = new GithubSaleDataSource(url, token);
+            return dataSource.GetSaleDataAsync().GetAwaiter().GetResult();
         }
     }
 }

@@ -10,7 +10,7 @@ using System.IO;
 
 namespace Tests.Classes
 {
-    public class FileHandlerFactoryTestClass : ISaleFileHandlerFactory
+    public class FileHandlerFactoryTestClass : ISalesHandlerFactory
     {
         bool generateEmpty;
         string token;
@@ -34,7 +34,7 @@ namespace Tests.Classes
             }
         }
 
-        public SaleFileHandlerBase GetSaleFileHandler()
+        public SalesHandlerBase GetSalesHandler()
         {
             if (generateEmpty)
             {

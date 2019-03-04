@@ -7,8 +7,8 @@ using Sales.SaleSource;
 
 namespace Sales.SaleSource.Factory
 {
-    public interface ISaleFileHandlerFactory
+    public interface ISalesHandlerFactory
     {
-        SaleFileHandlerBase GetSaleFileHandler();
+        SalesHandlerBase GetSalesHandler();
     }
 }

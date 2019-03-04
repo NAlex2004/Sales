@@ -17,9 +17,14 @@ namespace Tests
     [TestClass]
     public class HookAndFileTests
     {
-        HookConsumerTestClass hookConsumer = new HookConsumerTestClass();
-        SaleFileHandlerBase fileHandlerTestClass;
+        HookConsumerTestClass hookConsumer;
+        SalesHandlerBase fileHandlerTestClass;
         string token = File.ReadAllText("../../Data/token.txt");
+
+        public HookAndFileTests()
+        {
+            hookConsumer = new HookConsumerTestClass(token);
+        }
 
         FileHandlerTestClass FileHandler
         {
@@ -28,7 +33,7 @@ namespace Tests
                 if (fileHandlerTestClass == null)
                 {
                     FileHandlerFactoryTestClass factory = new FileHandlerFactoryTestClass(false);
-                    fileHandlerTestClass = factory.GetSaleFileHandler();
+                    fileHandlerTestClass = factory.GetSalesHandler();
                 }
 
                 return fileHandlerTestClass as FileHandlerTestClass;
@@ -108,7 +113,7 @@ namespace Tests
             FileHandlerTestClass fileHandler = new FileHandlerTestClass("123");
             SaleDataDto saleData = fileHandler.GetSalesFromGithubSync(url);
 
-            Assert.IsNull(saleData);
+            Assert.AreEqual(0, saleData.Sales.Count);
         }
 
         [TestMethod]
@@ -128,7 +133,7 @@ namespace Tests
             //string token = File.ReadAllText("../../Data/token.txt");
 
             var manager = new SaleDbDataManager();
-            using (GithubSaleFileHandler fileHandler = new GithubSaleFileHandler(manager, token))
+            using (GithubSalesHandler fileHandler = new GithubSalesHandler(manager))
             {                                
                 using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new Sales.SalesEntity.Entity.SalesDbContext()))
                 {
@@ -137,21 +142,21 @@ namespace Tests
                     Assert.IsTrue(errorAdded.Succeeded);
 
                     int errors = unitOfWork.ErrorFiles.Get().Count();                    
-                    fileHandler.HandleSaleFileAsync(url).GetAwaiter().GetResult();
+                    fileHandler.HandleSaleSourceAsync(new GithubSaleDataSource(url, token)).GetAwaiter().GetResult();
                     int errorsAfter = unitOfWork.ErrorFiles.Get().Count();
 
                     Assert.AreEqual(errors - 1, errorsAfter);
                 }
 
-                fileHandler.HandleSaleFileAsync(url).GetAwaiter().GetResult();
+                fileHandler.HandleSaleSourceAsync(new GithubSaleDataSource(url, token)).GetAwaiter().GetResult();
             }            
         }
 
         [TestMethod]
         public void GithubHookConsumer_NothingInDb_WhenBadHook()
         {
-            ISaleFileHandlerFactory fileHandlerFactory = new GithubSaleFileHandlerFactory(token);
-            IHookConsumer hookConsumer = new GithubHookConsumer(fileHandlerFactory, name => FileNameValidator.Validate(name));
+            ISalesHandlerFactory fileHandlerFactory = new GithubSalesHandlerFactory();
+            IHookConsumer hookConsumer = new GithubHookConsumer(fileHandlerFactory, token, name => FileNameValidator.Validate(name));
 
             using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new Sales.SalesEntity.Entity.SalesDbContext()))
             {
@@ -178,8 +183,8 @@ namespace Tests
         [TestMethod]
         public void GithubHookConsumer_Ok_WhenGoodHook()
         {
-            ISaleFileHandlerFactory fileHandlerFactory = new GithubSaleFileHandlerFactory(token);
-            IHookConsumer hookConsumer = new GithubHookConsumer(fileHandlerFactory, name => FileNameValidator.Validate(name));
+            ISalesHandlerFactory fileHandlerFactory = new GithubSalesHandlerFactory();
+            IHookConsumer hookConsumer = new GithubHookConsumer(fileHandlerFactory, token, name => FileNameValidator.Validate(name));
 
             using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new Sales.SalesEntity.Entity.SalesDbContext()))
             {

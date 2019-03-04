@@ -16,13 +16,15 @@ namespace Sales.SaleSource
     public class GithubHookConsumer : IHookConsumer
     {
         private const string GITHUB_URL = "https://api.github.com/repos/";
-        protected ISaleFileHandlerFactory saleFileHandlerFactory;
+        protected ISalesHandlerFactory salesHandlerFactory;
         protected Func<string, bool> fileNameValidator;
+        private string token;
 
-        public GithubHookConsumer(ISaleFileHandlerFactory saleFileHandlerFactory, Func<string, bool> fileNameValidator = null)
+        public GithubHookConsumer(ISalesHandlerFactory saleHandlerFactory, string githubRepoToken, Func<string, bool> fileNameValidator = null)
         {
-            this.saleFileHandlerFactory = saleFileHandlerFactory;
+            this.salesHandlerFactory = saleHandlerFactory;
             this.fileNameValidator = fileNameValidator;
+            token = githubRepoToken;
         }
 
         protected string MakeGetUrl(string filePath, GithubRepository repository)
@@ -94,7 +96,7 @@ namespace Sales.SaleSource
 
         public async virtual Task ConsumeHookAsync(string hookJson)
         {
-            if (saleFileHandlerFactory == null)
+            if (salesHandlerFactory == null)
             {
                 return;
             }
@@ -109,13 +111,14 @@ namespace Sales.SaleSource
             var fileUrls = GetFileUrls(hook);
 
             List<Task> tasks = new List<Task>();
-            List<SaleFileHandlerBase> handlers = new List<SaleFileHandlerBase>();
+            List<SalesHandlerBase> handlers = new List<SalesHandlerBase>();
             foreach (string url in fileUrls)
             {
-                SaleFileHandlerBase saleFileHandler = saleFileHandlerFactory.GetSaleFileHandler();
+                SalesHandlerBase saleFileHandler = salesHandlerFactory.GetSalesHandler();
                 handlers.Add(saleFileHandler);
 
-                Task task = saleFileHandler.HandleSaleFileAsync(url);
+                ISaleDataSource saleDataSource = new GithubSaleDataSource(url, token);
+                Task task = saleFileHandler.HandleSaleSourceAsync(saleDataSource);
                 tasks.Add(task);
             }
             await Task.WhenAll(tasks);

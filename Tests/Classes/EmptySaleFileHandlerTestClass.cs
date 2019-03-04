@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace Tests.Classes
 {
-    public class EmptySaleFileHandlerTestClass : SaleFileHandlerBase
+    public class EmptySaleFileHandlerTestClass : SalesHandlerBase
     {
         public EmptySaleFileHandlerTestClass() : base(new SaleDbDataManager())
         {
         }
 
-        public override Task HandleSaleFileAsync(string location)
+        public override Task HandleSaleSourceAsync(ISaleDataSource saleDataSource)
         {
             return Task.Delay(100);
         }
