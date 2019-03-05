@@ -34,7 +34,7 @@ namespace Sales.SaleSource
             return urlBuilder.ToString();
         }        
 
-        private void ProcessCommitFilesWithState(Dictionary<string, FileState> urls, IList<string> fileNames, FileState fileState, GithubRepository repository)
+        private void ProcessCommitFilesWithState(Dictionary<string, GithubFileEntry> urls, IList<string> fileNames, FileState fileState, DateTime commitDate, GithubRepository repository)
         {
             foreach (string fileName in fileNames)
             {
@@ -47,30 +47,36 @@ namespace Sales.SaleSource
                 string url = MakeGetUrl(fileName, repository);
                 if (urls.ContainsKey(url))
                 {
-                    urls[url] = fileState;
+                    var entry = urls[url];
+                    entry.State = fileState;
+                    entry.CommitDate = commitDate;
                 }
                 else
                 {
-                    urls.Add(url, fileState);
+                    urls.Add(url, new GithubFileEntry()
+                    {
+                        State = fileState,
+                        Url = url,
+                        CommitDate = commitDate
+                    });
                 }
             }
         }
 
         // hook is not null
-        protected virtual IEnumerable<string> GetFileUrls(GithubHook hook)
+        protected virtual IEnumerable<GithubFileEntry> GetFileUrls(GithubHook hook)
         {
-            Dictionary<string, FileState> urls = new Dictionary<string, FileState>();
 
+            Dictionary<string, GithubFileEntry> fileEntries = new Dictionary<string, GithubFileEntry>();
             //hook.Commits.OrderBy(c => c.Timestamp)
             foreach (var commit in hook.Commits)
-            {
-                ProcessCommitFilesWithState(urls, commit.Added, FileState.Added, hook.Repository);
-                ProcessCommitFilesWithState(urls, commit.Modified, FileState.Modified, hook.Repository);
-                ProcessCommitFilesWithState(urls, commit.Removed, FileState.Removed, hook.Repository);
-            }
+            {                
+                ProcessCommitFilesWithState(fileEntries, commit.Added, FileState.Added, commit.Timestamp, hook.Repository);
+                ProcessCommitFilesWithState(fileEntries, commit.Modified, FileState.Modified, commit.Timestamp, hook.Repository);
+                ProcessCommitFilesWithState(fileEntries, commit.Removed, FileState.Removed, commit.Timestamp, hook.Repository);                
+            }            
 
-            var result = urls.Where(entry => entry.Value != FileState.Removed).Select(entry => entry.Key);
-            return result;
+            return fileEntries.Where(entry => entry.Value.State != FileState.Removed).Select(entry => entry.Value);
         }
 
         protected GithubHook GetHookFromJson(string hookJson)
@@ -108,16 +114,16 @@ namespace Sales.SaleSource
                 return;
             }
 
-            var fileUrls = GetFileUrls(hook);
+            var fileEntries = GetFileUrls(hook);
 
             List<Task> tasks = new List<Task>();
             List<SalesHandlerBase> handlers = new List<SalesHandlerBase>();
-            foreach (string url in fileUrls)
+            foreach (var entry in fileEntries)
             {
                 SalesHandlerBase saleFileHandler = salesHandlerFactory.GetSalesHandler();
                 handlers.Add(saleFileHandler);
 
-                ISaleDataSource saleDataSource = new GithubSaleDataSource(url, token);
+                ISaleDataSource saleDataSource = new GithubSaleDataSource(entry, token);
                 Task task = saleFileHandler.HandleSaleSourceAsync(saleDataSource);
                 tasks.Add(task);
             }

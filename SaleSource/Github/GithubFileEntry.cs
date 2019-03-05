@@ -1,0 +1,15 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Sales.SaleSource.Github
+{
+    public class GithubFileEntry
+    {
+        public string Url { get; set; }
+        public FileState State { get; set; }
+        public DateTime CommitDate { get; set; }
+    }
+}

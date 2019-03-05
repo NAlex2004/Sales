@@ -16,23 +16,24 @@ namespace Sales.SaleSource
 {
     public class GithubSaleDataSource : ISaleDataSource
     {
-        string url;
+        GithubFileEntry fileEntry;
         string token;
 
-        public GithubSaleDataSource(string url, string githubRepoToken)
+        public GithubSaleDataSource(GithubFileEntry fileEntry, string githubRepoToken)
         {
-            this.url = url;
+            this.fileEntry = fileEntry;
             token = githubRepoToken;
         }
 
         public async Task<SaleDataDto> GetSaleDataAsync()
         {
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-            Uri uri = new Uri(url);
+            Uri uri = new Uri(fileEntry.Url);
             string fileName = Path.GetFileName(uri.LocalPath);
             SaleDataDto saleData = new SaleDataDto()
             {                
-                SourceFileName = fileName
+                SourceFileName = fileName,
+                FileDate = fileEntry.CommitDate
             };
 
             Debug.WriteLine($"[GetSaleDataAsync]: {fileName}");
@@ -43,7 +44,7 @@ namespace Sales.SaleSource
                     httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "NAlex2004");
                     httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Token", token);
 
-                    string responseBody = await httpClient.GetStringAsync(url);
+                    string responseBody = await httpClient.GetStringAsync(fileEntry.Url);
                     List<SaleDto> salesFromFile = await Task.Run(() =>
                     {
                         var responseObject = JsonConvert.DeserializeObject<GithubFileResponse>(responseBody);

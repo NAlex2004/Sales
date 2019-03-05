@@ -26,7 +26,7 @@ namespace Tests.Classes
         
         public SaleDataDto GetSalesFromGithubSync(string url)
         {
-            ISaleDataSource dataSource = new GithubSaleDataSource(url, token);
+            ISaleDataSource dataSource = new GithubSaleDataSource(new Sales.SaleSource.Github.GithubFileEntry() { Url = url }, token);
             return dataSource.GetSaleDataAsync().GetAwaiter().GetResult();
         }
     }

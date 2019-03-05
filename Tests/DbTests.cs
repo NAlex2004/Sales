@@ -19,7 +19,8 @@ namespace Tests
         {
             SaleDataDto saleData = new SaleDataDto()
             {
-                SourceFileName = "AlNaz_18121980.json"
+                SourceFileName = "AlNaz_18121980.json",
+                FileDate = DateTime.UtcNow
             };
 
             List<SaleDto> saleDtos = new List<SaleDto>();
@@ -57,7 +58,8 @@ namespace Tests
             {                
                 SourceFile sourceFile = new SourceFile()
                 {
-                    FileName = "shit"
+                    FileName = "shit",
+                    FileDate = DateTime.UtcNow
                 };
 
                 Customer customer1 = new Customer()

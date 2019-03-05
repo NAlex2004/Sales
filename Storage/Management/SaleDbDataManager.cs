@@ -10,12 +10,14 @@ using Sales.DAL.Interfaces;
 using Sales.DAL.Database;
 using System.Data.Entity.Validation;
 using System.Diagnostics;
+using System.Threading;
 
 namespace Sales.Storage.Management
 {
     public partial class SaleDbDataManager : ISalesDataManager
     {
-        protected ISalesUnitOfWork unitOfWork;        
+        protected ISalesUnitOfWork unitOfWork;
+        static Mutex customersAndProductsSaveMutex = new Mutex(false, "CustomersProductsMutex");
 
         public SaleDbDataManager(ISalesUnitOfWork salesUnitOfWork)
         {
@@ -56,22 +58,70 @@ namespace Sales.Storage.Management
             return addOrUpdateResult;
         }
 
-        protected virtual async Task<SaleManagementResult> AddSaleDetailsDataAsync(IList<SaleDto> saleDetailsData)
+        protected IList<Sale> GetSalesWithSavedProductsAndCustomers(SourceFile sourceFile, IEnumerable<SaleDto> saleDetailsData)
+        {
+            List<Sale> sales = new List<Sale>();
+            var mapper = Mappings.GetMapper();
+            bool gotMutex = false;
+            try
+            {                
+                foreach (var saleDto in saleDetailsData)
+                {                    
+                    Sale sale = mapper.Map<SaleDto, Sale>(saleDto);                    
+                    sale.SourceFile = sourceFile;
+                    gotMutex = customersAndProductsSaveMutex.WaitOne();
+                    if (!gotMutex)
+                    {
+                        throw new ThreadInterruptedException("Could not get mutex.");
+                    }
+                    sale.Customer = unitOfWork.Customers.Add(sale.Customer);
+                    sale.Product = unitOfWork.Products.Add(sale.Product);
+                    unitOfWork.SaveChanges();
+
+                    customersAndProductsSaveMutex.ReleaseMutex();
+                    gotMutex = false;
+                    sales.Add(sale);
+                }
+
+                return sales;
+            }
+            catch (Exception e)
+            {
+                unitOfWork.DiscardChanges();
+                return new Sale[0];
+            }
+            finally
+            {
+                if (gotMutex)
+                {
+                    customersAndProductsSaveMutex.ReleaseMutex();
+                }
+            }
+            
+        }
+
+        protected virtual async Task<SaleManagementResult> AddSaleDetailsDataAsync(SourceFile sourceFile, IList<SaleDto> saleDetailsData)
         {
             SaleManagementResult result = await Task.Run(() =>
             {
                 var mapper = Mappings.GetMapper();
                 try
                 {
-                    foreach (var saleDto in saleDetailsData)
+                    //foreach (var saleDto in saleDetailsData)
+                    //{
+                    //    Sale sale = mapper.Map<SaleDto, Sale>(saleDto);
+                    //    sale.Customer = unitOfWork.Customers.Add(sale.Customer);
+                    //    sale.Product = unitOfWork.Products.Add(sale.Product);
+                    //    unitOfWork.Sales.Add(sale);
+                    //}
+                    var sales = GetSalesWithSavedProductsAndCustomers(sourceFile, saleDetailsData);
+                    if (sales.Count == 0)
                     {
-                        Sale sale = mapper.Map<SaleDto, Sale>(saleDto);
-                        sale.Customer = unitOfWork.Customers.Add(sale.Customer);
-                        sale.Product = unitOfWork.Products.Add(sale.Product);
-                        unitOfWork.Sales.Add(sale);
+                        throw new ArgumentException("Empty sales list.");
                     }
-                    
-                     unitOfWork.SaveChanges();
+                    unitOfWork.SourceFiles.Add(sourceFile);
+                    unitOfWork.Sales.AddRange(sales);
+                    unitOfWork.SaveChanges();
 
                     return new SaleManagementResult()
                     {
@@ -96,11 +146,11 @@ namespace Sales.Storage.Management
         {
             SourceFile sourceFile = new SourceFile()
             {
-                FileName = saleData.SourceFileName
-            };
-            unitOfWork.SourceFiles.Add(sourceFile);
+                FileName = saleData.SourceFileName,
+                FileDate = saleData.FileDate
+            };            
 
-            SaleManagementResult result = await AddSaleDetailsDataAsync(saleData.Sales);
+            SaleManagementResult result = await AddSaleDetailsDataAsync(sourceFile, saleData.Sales);
             result.FileName = saleData.SourceFileName;
 
             return result;
@@ -108,12 +158,18 @@ namespace Sales.Storage.Management
 
         protected virtual async Task<SaleManagementResult> UpdateSaleDataAsync(SaleDataDto saleData, SourceFile sourceFile)
         {
-            var deleted = unitOfWork.Sales.Delete(sale => sale.SourceFileId == sourceFile.Id);  
-            for (int i=0; i<saleData.Sales.Count; i++)
+            var deleted = unitOfWork.Sales.Delete(sale => sale.SourceFileId == sourceFile.Id);
+            unitOfWork.SourceFiles.Delete(file => file.Id == sourceFile.Id);
+            //for (int i=0; i<saleData.Sales.Count; i++)
+            //{
+            //    saleData.Sales[i].SourceFileId = sourceFile.Id;
+            //}
+            sourceFile = new SourceFile()
             {
-                saleData.Sales[i].SourceFileId = sourceFile.Id;
-            }
-            SaleManagementResult result = await AddSaleDetailsDataAsync(saleData.Sales);
+                FileDate = saleData.FileDate,
+                FileName = saleData.SourceFileName
+            };
+            SaleManagementResult result = await AddSaleDetailsDataAsync(sourceFile, saleData.Sales);
             result.FileName = saleData.SourceFileName;
 
             return result;
@@ -138,13 +194,6 @@ namespace Sales.Storage.Management
                 result.Succeeded = savedCount > 0;
                 result.ErrorMessage = savedCount > 0 ? "" : "Data is not saved";                
             }
-            //catch (DbEntityValidationException ex)
-            //{                
-            //    foreach(var error in ex.EntityValidationErrors)
-            //    {
-            //        Debug.Write($"[ENTITY VALIDATION EXCEPTION]: {error}");
-            //    }                
-            //}
             catch (Exception e)
             {
                 unitOfWork.DiscardChanges();

@@ -69,14 +69,14 @@ namespace Tests
         public void GetFileUrlsFromHook_CorrectUrls()
         {
             GithubHook hook = GetHook();
-            var fileUrls = hookConsumer.GetFileUrlsFromHook(hook).OrderBy(f => f).ToArray();
+            var fileUrls = hookConsumer.GetFileUrlsFromHook(hook).OrderBy(f => f.Url).ToArray();
             string baseUrl = "https://api.github.com/repos/NAlex2004/SalesData/contents/";
 
             Assert.AreEqual(4, fileUrls.Length);
-            Assert.AreEqual(baseUrl + "Manager_2/AlNaz_04032019.json", fileUrls[0]);
-            Assert.AreEqual(baseUrl + "Manager_2/ErErr_04032019.json", fileUrls[1]);
-            Assert.AreEqual(baseUrl + "Manager_2/ErNot_04032019.json", fileUrls[2]);
-            Assert.AreEqual(baseUrl + "Manager_2/VaAli_03032019.json", fileUrls[3]);
+            Assert.AreEqual(baseUrl + "Manager_2/AlNaz_04032019.json", fileUrls[0].Url);
+            Assert.AreEqual(baseUrl + "Manager_2/ErErr_04032019.json", fileUrls[1].Url);
+            Assert.AreEqual(baseUrl + "Manager_2/ErNot_04032019.json", fileUrls[2].Url);
+            Assert.AreEqual(baseUrl + "Manager_2/VaAli_03032019.json", fileUrls[3].Url);
         }
 
         [TestMethod]
@@ -142,13 +142,13 @@ namespace Tests
                     Assert.IsTrue(errorAdded.Succeeded);
 
                     int errors = unitOfWork.ErrorFiles.Get().Count();                    
-                    fileHandler.HandleSaleSourceAsync(new GithubSaleDataSource(url, token)).GetAwaiter().GetResult();
+                    fileHandler.HandleSaleSourceAsync(new GithubSaleDataSource(new GithubFileEntry() { Url = url, CommitDate = DateTime.Now }, token)).GetAwaiter().GetResult();
                     int errorsAfter = unitOfWork.ErrorFiles.Get().Count();
 
                     Assert.AreEqual(errors - 1, errorsAfter);
                 }
 
-                fileHandler.HandleSaleSourceAsync(new GithubSaleDataSource(url, token)).GetAwaiter().GetResult();
+                fileHandler.HandleSaleSourceAsync(new GithubSaleDataSource(new GithubFileEntry() { Url = url, CommitDate = DateTime.Now }, token)).GetAwaiter().GetResult();
             }            
         }
 

@@ -18,12 +18,12 @@ namespace Tests.Classes
             {
             }
 
-            protected override IEnumerable<string> GetFileUrls(GithubHook hook)
+            protected override IEnumerable<GithubFileEntry> GetFileUrls(GithubHook hook)
             {
                 return base.GetFileUrls(hook);
             }
 
-            public IEnumerable<string> GetFileUrlsFromHook(GithubHook hook)
+            public IEnumerable<GithubFileEntry> GetFileUrlsFromHook(GithubHook hook)
             {
                 return GetFileUrls(hook);
             }
@@ -49,7 +49,7 @@ namespace Tests.Classes
             hookConsumer = new HookConsumer(handlerFactory, token, fileName => FileNameValidator.Validate(fileName));
         }
 
-        public IEnumerable<string> GetFileUrlsFromHook(GithubHook hook)
+        public IEnumerable<GithubFileEntry> GetFileUrlsFromHook(GithubHook hook)
         {
             return hookConsumer.GetFileUrlsFromHook(hook);
         }

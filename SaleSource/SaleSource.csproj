@@ -50,6 +50,7 @@
     <Compile Include="GithubSaleDataSource.cs" />
     <Compile Include="Github\FileState.cs" />
     <Compile Include="Github\GithubCommit.cs" />
+    <Compile Include="Github\GithubFileEntry.cs" />
     <Compile Include="Github\GithubFileResponse.cs" />
     <Compile Include="Github\GithubHook.cs" />
     <Compile Include="Github\GithubRepository.cs" />
