@@ -8,6 +8,8 @@ using System.Web.Http;
 using Sales.SaleSource.Factory;
 using Sales.SaleSource.Github;
 using Sales.SaleSource;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace Sales.SalesWebApp.Controllers
 {
@@ -21,11 +23,12 @@ namespace Sales.SalesWebApp.Controllers
         }
 
         [HttpPost]
-        public async Task WebHook([FromBody] string hookJson)
-        {
+        public async Task WebHook([FromBody] JObject hookJson)
+        {            
+            //JsonConvert.DeserializeObject()
             if (hookConsumer != null)
             {
-                await hookConsumer.ConsumeHookAsync(hookJson);
+                await hookConsumer.ConsumeHookAsync("");
             }
         }
     }
