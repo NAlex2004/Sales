@@ -107,13 +107,6 @@ namespace Sales.Storage.Management
                 var mapper = Mappings.GetMapper();
                 try
                 {
-                    //foreach (var saleDto in saleDetailsData)
-                    //{
-                    //    Sale sale = mapper.Map<SaleDto, Sale>(saleDto);
-                    //    sale.Customer = unitOfWork.Customers.Add(sale.Customer);
-                    //    sale.Product = unitOfWork.Products.Add(sale.Product);
-                    //    unitOfWork.Sales.Add(sale);
-                    //}
                     var sales = GetSalesWithSavedProductsAndCustomers(sourceFile, saleDetailsData);
                     if (sales.Count == 0)
                     {
@@ -160,10 +153,7 @@ namespace Sales.Storage.Management
         {
             var deleted = unitOfWork.Sales.Delete(sale => sale.SourceFileId == sourceFile.Id);
             unitOfWork.SourceFiles.Delete(file => file.Id == sourceFile.Id);
-            //for (int i=0; i<saleData.Sales.Count; i++)
-            //{
-            //    saleData.Sales[i].SourceFileId = sourceFile.Id;
-            //}
+
             sourceFile = new SourceFile()
             {
                 FileDate = saleData.FileDate,

@@ -103,7 +103,6 @@ namespace Tests
                 int oldSalesCount = unitOfWork.Sales.Get().Count();
                 int oldCustomersCount = unitOfWork.Customers.Get().Count();
                 int oldProductCount = unitOfWork.Products.Get().Count();
-
                 int res = unitOfWork.SaveChanges();
 
                 int salesCount = unitOfWork.Sales.Get().Count();
@@ -123,7 +122,6 @@ namespace Tests
             {
                 unitOfWork.Products.Delete(p => true);
                 unitOfWork.SaveChanges();
-
                 Product product1 = new Product()
                 {
                     ProductName = "Product 1"
@@ -143,12 +141,10 @@ namespace Tests
 
                 var added = unitOfWork.Products.AddRange(new[] { product1, product2, product3 });
                 int res = unitOfWork.SaveChanges();
-
                 unitOfWork.Products.Add(product4);
-
                 res = unitOfWork.SaveChanges();
-                int count = unitOfWork.Products.Get().Count();
 
+                int count = unitOfWork.Products.Get().Count();
                 Assert.AreEqual(1, count);
             }
         }
@@ -183,39 +179,34 @@ namespace Tests
 
                 var added = unitOfWork.Products.AddRange(new[] { product1, product2 });
                 int res = unitOfWork.SaveChanges();
-
                 unitOfWork2.Products.AddRange(new[] { product4, product3 });
                 res = unitOfWork2.SaveChanges();
 
                 int count = unitOfWork.Products.Get().Count();
-
                 Assert.AreEqual(1, count);
             }
         }
 
         [TestMethod]
-        public void When_SaveChanges_Fails_NothingSaved()
+        public void When_SaveChanges_Fails_NothingIsSaved()
         {
             SourceFile sourceFile1 = new SourceFile()
             {
-                FileName = "shit"
+                FileName = "item"
             };
-
             SourceFile sourceFile2 = new SourceFile()
             {
-                FileName = "shit 2"
+                FileName = "item 2"
             };
-
             SourceFile sourceFile3 = new SourceFile()
             {
-                FileName = "shit"
+                FileName = "item"
             };
 
             using (var unitOfWork = new SalesDbUnitOfWork(new SalesDbContext()))
             {
                 unitOfWork.SourceFiles.Delete(f => true);
                 unitOfWork.SaveChanges();
-
                 unitOfWork.SourceFiles.Add(sourceFile1);
                 unitOfWork.SourceFiles.Add(sourceFile2);
                 unitOfWork.SourceFiles.Add(sourceFile3);
@@ -234,7 +225,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void SaleDbDataManager_AddData_CorrectlyAddsDuplicates_AndSameFile()
+        public void SaleDbDataManager_AddSaleData_AddsWithNoDuplicates()
         {
             SaleDataDto saleDataDto = GetSaleData();
             var groupedSales = saleDataDto.Sales
@@ -262,12 +253,12 @@ namespace Tests
                 int savedSalesCount = unitOfWork.Sales.Get().Count();
                 int savedCustomersCount = unitOfWork.Customers.Get().Count();
                 int savedProductsCount = unitOfWork.Products.Get().Count();
-
                 Assert.IsTrue(res.Succeeded);
                 Assert.AreEqual(customersCount + initialCustomersCount, savedCustomersCount);
                 Assert.AreEqual(productsCount + initialProductsCount, savedProductsCount);
                 Assert.AreEqual(salesCount + initialSalesCount, savedSalesCount);
 
+                // Second time same file
                 saleDataDto = GetSaleData(1);
                 groupedSales = saleDataDto.Sales
                     .GroupBy(sale => new { sale.CustomerName, sale.ProductName, sale.SaleDate },
@@ -280,12 +271,11 @@ namespace Tests
                     });
 
                 res = manager.AddOrUpdateSaleDataAsync(saleDataDto).GetAwaiter().GetResult();
-
-                Assert.IsTrue(res.Succeeded);
+                
                 savedSalesCount = unitOfWork.Sales.Get().Count();
                 savedCustomersCount = unitOfWork.Customers.Get().Count();
                 savedProductsCount = unitOfWork.Products.Get().Count();
-
+                Assert.IsTrue(res.Succeeded);
                 Assert.AreEqual(customersCount + initialCustomersCount, savedCustomersCount);
                 Assert.AreEqual(productsCount + initialProductsCount, savedProductsCount);
                 Assert.AreEqual(salesCount + initialSalesCount, savedSalesCount);
