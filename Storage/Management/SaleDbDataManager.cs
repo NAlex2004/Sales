@@ -126,7 +126,7 @@ namespace Sales.Storage.Management
                     var sales = GetSalesAndSaveProductsAndCustomers(sourceFile, saleDetailsData);
                     if (sales.Count == 0)
                     {
-                        throw new ArgumentException("Empty sales list.");
+                        throw new ArgumentException("Empty sales list or thread error.");
                     }
                     unitOfWork.SourceFiles.Add(sourceFile);
                     unitOfWork.Sales.AddRange(sales);

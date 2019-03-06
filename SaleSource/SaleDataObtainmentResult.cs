@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 
 namespace Sales.SaleSource
 {
-    public interface ISaleDataSource
+    public class SaleDataObtainmentResult
     {
-        Task<SaleDataObtainmentResult> GetSaleDataAsync();        
+        public SaleDataDto SaleData { get; set; }
+        public bool Success { get; set; }
+        public string ErrorMessage { get; set; } 
     }
 }

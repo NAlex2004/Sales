@@ -37,7 +37,7 @@ namespace Sales.SaleSource
             });
         }
 
-        public async Task<SaleDataDto> GetSaleDataAsync()
+        public async Task<SaleDataObtainmentResult> GetSaleDataAsync()
         {
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
             Uri uri = new Uri(fileEntry.Url);
@@ -46,6 +46,11 @@ namespace Sales.SaleSource
             {                
                 SourceFileName = fileName,
                 FileDate = fileEntry.CommitDate
+            };
+            SaleDataObtainmentResult result = new SaleDataObtainmentResult()
+            {
+                SaleData = saleData,
+                Success = false
             };
 
             Debug.WriteLine($"[GetSaleDataAsync]: {fileName}");
@@ -58,32 +63,30 @@ namespace Sales.SaleSource
 
                     string responseBody = await httpClient.GetStringAsync(fileEntry.Url);
                     IList<SaleDto> salesFromFile = await GetSalesFromResponseJson(responseBody);
-                    
-                    if (salesFromFile == null)
-                    {
-                        return saleData;
-                    }
 
                     // If we'd like to take any correct data from file, skipping incorrect
                     //salesFromFile = salesFromFile.Where(s => s != null && s.HasValidData()).Select(s => s).ToList();
 
                     // Let's assume, all data must be correct
-                    bool IsAllDataCorrect = salesFromFile.Count > 0 && !salesFromFile.Any(s => s == null || !s.HasValidData());
-
-                    if (IsAllDataCorrect)
+                    if (salesFromFile == null
+                        || salesFromFile.Count == 0 || salesFromFile.Any(s => s == null || !s.HasValidData()))
                     {
-                        Debug.WriteLine($"[GetSaleDataAsync]: CORRECT {fileName}");
-                        saleData.Sales = salesFromFile;
-                        return saleData;
+                        result.ErrorMessage = $"File '{fileName}' has no suitable data.";
+                        return result;
                     }
 
+                    Debug.WriteLine($"[GetSaleDataAsync]: CORRECT {fileName}");
+                    saleData.Sales = salesFromFile;
+                    result.Success = true;
+                    return result;
                 }
                 catch (Exception e)
                 {
                     Debug.WriteLine($"[GetSaleDataAsync]: ERROR: {e.Message}");
+                    result.ErrorMessage = e.Message;
                 }
 
-                return saleData;
+                return result;
             }
         }
     }

@@ -23,15 +23,15 @@ namespace Sales.SaleSource
 
         public override async Task HandleSaleSourceAsync(ISaleDataSource saleDataSource)
         {
-            SaleDataDto saleData = await saleDataSource.GetSaleDataAsync();
+            SaleDataObtainmentResult dataResult = await saleDataSource.GetSaleDataAsync();
             SaleManagementResult result;
 
-            if (saleData.Sales != null && saleData.Sales.Count > 0)
+            if (dataResult.Success && dataResult.SaleData.Sales.Count > 0)
             {                
-                result = await salesDataManager.AddOrUpdateSaleDataAsync(saleData);
+                result = await salesDataManager.AddOrUpdateSaleDataAsync(dataResult.SaleData);
                 if (result.Succeeded)
                 {
-                    await salesDataManager.ErrorManager.RemoveErrorAsync(new SaleManagementResult() { FileName = saleData.SourceFileName });
+                    await salesDataManager.ErrorManager.RemoveErrorAsync(new SaleManagementResult() { FileName = dataResult.SaleData.SourceFileName });
                     return;
                 }                
             }
@@ -39,10 +39,13 @@ namespace Sales.SaleSource
             {
                 result = new SaleManagementResult()
                 {
-                    FileName = saleData.SourceFileName,
+                    FileName = dataResult.SaleData.SourceFileName,
                     Succeeded = false,
-                    ErrorMessage = "[GithubSaleFileHandler.HandleSaleFileAsync]: Skipping file because it has no suitable data."
+                    ErrorMessage = dataResult.ErrorMessage
                 };
+                //result.ErrorMessage = dataResult.Success
+                //    ? "[GithubSaleFileHandler.HandleSaleFileAsync]: Skipping file because it has no suitable data."
+                //    : $"[GithubSaleFileHandler.HandleSaleFileAsync]: {dataResult.ErrorMessage}";
             }            
 
             await salesDataManager.ErrorManager.AddErrorAsync(result);            

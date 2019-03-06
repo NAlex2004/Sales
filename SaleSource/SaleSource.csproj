@@ -59,6 +59,7 @@
     <Compile Include="IHookConsumer.cs" />
     <Compile Include="GithubSalesHandler.cs" />
     <Compile Include="ISaleDataSource.cs" />
+    <Compile Include="SaleDataObtainmentResult.cs" />
     <Compile Include="SalesHandlerBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Validation\FileNameValidator.cs" />

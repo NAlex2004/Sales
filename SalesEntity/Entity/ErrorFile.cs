@@ -12,10 +12,13 @@ namespace Sales.SalesEntity.Entity
     {
         [Key]
         public int Id { get; set; }
-        [Required]
-        [Index(IsUnique = true)]
+        [Required]        
         [MaxLength(500)]
+        [Index("idx_Errors", IsUnique = true, Order = 1)]
         public string FileName { get; set; }
+        [Required]
+        [MaxLength(2500)]
+        [Index("idx_Errors", IsUnique = true, Order = 2)]
         public string ErrorDescription { get; set; }
     }
 }
