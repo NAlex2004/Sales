@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Configuration;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -58,6 +59,9 @@ namespace Sales.SaleSource
             {
                 try
                 {
+                    HttpWebRequestElement webRequestElement = new HttpWebRequestElement();
+                    webRequestElement.UseUnsafeHeaderParsing = true;
+
                     httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "NAlex2004");
                     httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Token", token);
 
