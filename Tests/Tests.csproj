@@ -68,6 +68,7 @@
     <Compile Include="StorageTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="HookAndFileTests.cs" />
+    <Compile Include="TestDbContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

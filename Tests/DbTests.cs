@@ -54,7 +54,7 @@ namespace Tests
         [TestMethod]
         public void AddNewSaleWithNewProduct_AddsProduct()
         {
-            using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new SalesDbContext()))
+            using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new TestDbContext()))
             {                
                 SourceFile sourceFile = new SourceFile()
                 {
@@ -118,7 +118,7 @@ namespace Tests
         [TestMethod]
         public void AddingSameProduct_AddedOnce()
         {
-            using (var unitOfWork = new SalesDbUnitOfWork(new SalesDbContext()))
+            using (var unitOfWork = new SalesDbUnitOfWork(new TestDbContext()))
             {
                 unitOfWork.Products.Delete(p => true);
                 unitOfWork.SaveChanges();
@@ -152,8 +152,8 @@ namespace Tests
         [TestMethod]
         public void AddingSameProductInDifferentContexts_AddedOnce()
         {
-            using (var unitOfWork = new SalesDbUnitOfWork(new SalesDbContext()))
-            using (var unitOfWork2 = new SalesDbUnitOfWork(new SalesDbContext()))
+            using (var unitOfWork = new SalesDbUnitOfWork(new TestDbContext()))
+            using (var unitOfWork2 = new SalesDbUnitOfWork(new TestDbContext()))
             {
                 unitOfWork.Products.Delete(p => true);
                 unitOfWork.SaveChanges();
@@ -203,7 +203,7 @@ namespace Tests
                 FileName = "item"
             };
 
-            using (var unitOfWork = new SalesDbUnitOfWork(new SalesDbContext()))
+            using (var unitOfWork = new SalesDbUnitOfWork(new TestDbContext()))
             {
                 unitOfWork.SourceFiles.Delete(f => true);
                 unitOfWork.SaveChanges();
@@ -241,7 +241,7 @@ namespace Tests
             int productsCount = saleDataDto.Sales.Select(s => s.ProductName).Distinct().Count();
             int salesCount = groupedSales.Count();
 
-            using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new SalesDbContext()))
+            using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new TestDbContext()))
             using (SaleDbDataManager manager = new SaleDbDataManager(unitOfWork))
             {
                 int initialCustomersCount = unitOfWork.Customers.Get().Count();

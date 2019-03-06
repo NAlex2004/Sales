@@ -136,7 +136,7 @@ namespace Tests
                 var manager = new SaleDbDataManager();
                 using (GithubSalesHandler fileHandler = new GithubSalesHandler(manager))
                 {
-                    using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new Sales.SalesEntity.Entity.SalesDbContext()))
+                    using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new TestDbContext()))
                     {
                         var errorAdded = manager.ErrorManager.AddErrorAsync(new SaleManagementResult() { FileName = "AlNaz_04032019.json", ErrorMessage = "Test error" }).GetAwaiter().GetResult();                        
                         int errors = unitOfWork.ErrorFiles.Get().Count();
@@ -167,7 +167,7 @@ namespace Tests
             ISalesHandlerFactory fileHandlerFactory = new GithubSalesHandlerFactory();            
             IHookConsumer hookConsumer = new GithubHookConsumer(fileHandlerFactory, token, new GithubHookParser(f => FileNameValidator.Validate(f)));
 
-            using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new Sales.SalesEntity.Entity.SalesDbContext()))
+            using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new TestDbContext()))
             {
                 lock (lockObject)
                 {
@@ -199,7 +199,7 @@ namespace Tests
             ISalesHandlerFactory fileHandlerFactory = new GithubSalesHandlerFactory();
             IHookConsumer hookConsumer = new GithubHookConsumer(fileHandlerFactory, token, new GithubHookParser(f => FileNameValidator.Validate(f)));
 
-            using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new Sales.SalesEntity.Entity.SalesDbContext()))
+            using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new TestDbContext()))
             {
                 lock(lockObject)
                 {
@@ -234,7 +234,7 @@ namespace Tests
             IHookConsumer hookConsumer = new GithubHookConsumer(fileHandlerFactory, token, new GithubHookParser(f => FileNameValidator.Validate(f)));
             IHookConsumer hookConsumer2 = new GithubHookConsumer(fileHandlerFactory, token, new GithubHookParser(f => FileNameValidator.Validate(f)));
 
-            using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new Sales.SalesEntity.Entity.SalesDbContext()))
+            using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new TestDbContext()))
             {
                 lock(lockObject)
                 {

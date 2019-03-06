@@ -11,8 +11,6 @@ namespace Sales.SalesEntity.Entity
     {
         public SalesDbContext() : base("Sales")
         {
-            // for tests
-            Database.SetInitializer(new DropCreateDatabaseAlways<SalesDbContext>());
         }
 
         public DbSet<SourceFile> SourceFiles { get; set; }
