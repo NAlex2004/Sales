@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.Http.Dependencies;
 using Sales.SaleSource.Factory;
 using Sales.SaleSource.Validation;
+using System.Configuration;
 
 namespace Sales.SalesWebApp
 {
@@ -25,7 +26,8 @@ namespace Sales.SalesWebApp
         {
             if (serviceType == typeof(SalesController))
             {
-                IHookConsumer hookConsumer = new GithubHookConsumer(new GithubSalesHandlerFactory(), "", fileName => FileNameValidator.Validate(fileName));
+                string token = ConfigurationManager.AppSettings["token"];
+                IHookConsumer hookConsumer = new GithubHookConsumer(new GithubSalesHandlerFactory(), token, fileName => FileNameValidator.Validate(fileName));
                 return new SalesController(hookConsumer);
             }
 

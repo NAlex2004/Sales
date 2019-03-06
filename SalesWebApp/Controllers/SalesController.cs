@@ -23,12 +23,11 @@ namespace Sales.SalesWebApp.Controllers
         }
 
         [HttpPost]
-        public async Task WebHook([FromBody] JObject hookJson)
-        {            
-            //JsonConvert.DeserializeObject()
+        public async Task WebHook([FromBody] JObject hookJObject)
+        {                        
             if (hookConsumer != null)
             {
-                await hookConsumer.ConsumeHookAsync("");
+                await hookConsumer.ConsumeHookAsync(hookJObject.ToString());
             }
         }
     }
