@@ -20,6 +20,8 @@ namespace Tests
     {
         HookConsumerTestClass hookConsumer;
         SalesHandlerBase fileHandlerTestClass;
+        HookParserTestClass hookParser = new HookParserTestClass(fileName => FileNameValidator.Validate(fileName));
+
         string token = File.ReadAllText("../../Data/token.txt");
         static object lockObject = new object();
 
@@ -45,7 +47,7 @@ namespace Tests
         private GithubHook GetHook()
         {            
             string hookJson = File.ReadAllText("../../Data/hook1.json");
-            GithubHook hook = hookConsumer.GetHookFromJson(hookJson);
+            GithubHook hook = hookParser.GetHookFromJsonPublic(hookJson);
 
             return hook;
         }
@@ -72,7 +74,7 @@ namespace Tests
         {
             GithubHook hook = GetHook();
 
-            var fileUrls = hookConsumer.GetFileUrlsFromHook(hook).OrderBy(f => f.Url).ToArray();
+            var fileUrls = hookParser.GetFileUrlsFromHook(hook).OrderBy(f => f.Url).ToArray();
 
             string baseUrl = "https://api.github.com/repos/NAlex2004/SalesData/contents/";
             Assert.AreEqual(4, fileUrls.Length);
@@ -89,11 +91,11 @@ namespace Tests
             string badHookJson2 = File.ReadAllText("../../Data/bad_hook2.json");
             string noCommitsHook = File.ReadAllText("../../Data/no_commits.json");
 
-            GithubHook nullHook = hookConsumer.GetHookFromJson(null);
-            GithubHook badHook1 = hookConsumer.GetHookFromJson("aaa");
-            GithubHook badHookJson1_hook = hookConsumer.GetHookFromJson(badHookJson1);
-            GithubHook badHookJson2_hook = hookConsumer.GetHookFromJson(badHookJson2);
-            GithubHook noCommitsHook_hook = hookConsumer.GetHookFromJson(noCommitsHook);
+            GithubHook nullHook = hookParser.GetHookFromJsonPublic(null);
+            GithubHook badHook1 = hookParser.GetHookFromJsonPublic("aaa");
+            GithubHook badHookJson1_hook = hookParser.GetHookFromJsonPublic(badHookJson1);
+            GithubHook badHookJson2_hook = hookParser.GetHookFromJsonPublic(badHookJson2);
+            GithubHook noCommitsHook_hook = hookParser.GetHookFromJsonPublic(noCommitsHook);
 
             Assert.IsNull(nullHook);
             Assert.IsNull(badHook1);
@@ -162,8 +164,8 @@ namespace Tests
         [TestMethod]
         public void GithubHookConsumer_NothingInDb_WhenHandlingBadHook()
         {
-            ISalesHandlerFactory fileHandlerFactory = new GithubSalesHandlerFactory();
-            IHookConsumer hookConsumer = new GithubHookConsumer(fileHandlerFactory, token, name => FileNameValidator.Validate(name));
+            ISalesHandlerFactory fileHandlerFactory = new GithubSalesHandlerFactory();            
+            IHookConsumer hookConsumer = new GithubHookConsumer(fileHandlerFactory, token, new GithubHookParser(f => FileNameValidator.Validate(f)));
 
             using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new Sales.SalesEntity.Entity.SalesDbContext()))
             {
@@ -195,7 +197,7 @@ namespace Tests
         public void GithubHookConsumer_DbHasCorrectData_WhenHandlingGoodHook()
         {
             ISalesHandlerFactory fileHandlerFactory = new GithubSalesHandlerFactory();
-            IHookConsumer hookConsumer = new GithubHookConsumer(fileHandlerFactory, token, name => FileNameValidator.Validate(name));
+            IHookConsumer hookConsumer = new GithubHookConsumer(fileHandlerFactory, token, new GithubHookParser(f => FileNameValidator.Validate(f)));
 
             using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new Sales.SalesEntity.Entity.SalesDbContext()))
             {
@@ -229,8 +231,8 @@ namespace Tests
         public void GithubHookConsumer_HandlingSameHookInParallelThreads_EachFileSavedOnlyOnce()
         {
             ISalesHandlerFactory fileHandlerFactory = new GithubSalesHandlerFactory();
-            IHookConsumer hookConsumer = new GithubHookConsumer(fileHandlerFactory, token, name => FileNameValidator.Validate(name));
-            IHookConsumer hookConsumer2 = new GithubHookConsumer(fileHandlerFactory, token, name => FileNameValidator.Validate(name));
+            IHookConsumer hookConsumer = new GithubHookConsumer(fileHandlerFactory, token, new GithubHookParser(f => FileNameValidator.Validate(f)));
+            IHookConsumer hookConsumer2 = new GithubHookConsumer(fileHandlerFactory, token, new GithubHookParser(f => FileNameValidator.Validate(f)));
 
             using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new Sales.SalesEntity.Entity.SalesDbContext()))
             {

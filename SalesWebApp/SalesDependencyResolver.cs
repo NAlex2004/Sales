@@ -27,7 +27,8 @@ namespace Sales.SalesWebApp
             if (serviceType == typeof(SalesController))
             {
                 string token = ConfigurationManager.AppSettings["token"];
-                IHookConsumer hookConsumer = new GithubHookConsumer(new GithubSalesHandlerFactory(), token, fileName => FileNameValidator.Validate(fileName));
+                GithubHookParser hookParser = new GithubHookParser(fileName => FileNameValidator.Validate(fileName));
+                IHookConsumer hookConsumer = new GithubHookConsumer(new GithubSalesHandlerFactory(), token, hookParser);
                 return new SalesController(hookConsumer);
             }
 

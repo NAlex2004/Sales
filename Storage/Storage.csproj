@@ -53,6 +53,8 @@
   <ItemGroup>
     <Compile Include="DTO\SaleDataDto.cs" />
     <Compile Include="DTO\SaleDto.cs" />
+    <Compile Include="Extensions\Extensionscs.cs" />
+    <Compile Include="Management\ErrorManager.cs" />
     <Compile Include="Management\ISalesDataManager.cs" />
     <Compile Include="Management\SaleDbDataManager.cs" />
     <Compile Include="Management\SaleDbDataManager.Mappings.cs" />

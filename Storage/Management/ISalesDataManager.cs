@@ -10,7 +10,6 @@ namespace Sales.Storage.Management
     public interface ISalesDataManager : IDisposable
     {
         Task<SaleManagementResult> AddOrUpdateSaleDataAsync(SaleDataDto saleData);
-        Task<SaleManagementResult> AddErrorAsync(SaleManagementResult badResult);
-        Task<SaleManagementResult> RemoveErrorAsync(SaleManagementResult badResult);
+        ErrorManager ErrorManager { get; }
     }
 }

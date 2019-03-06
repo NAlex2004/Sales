@@ -25,6 +25,18 @@ namespace Sales.SaleSource
             token = githubRepoToken;
         }
 
+        private async Task<IList<SaleDto>> GetSalesFromResponseJson(string responseBody)
+        {
+            return await Task.Run(() =>
+            {
+                var responseObject = JsonConvert.DeserializeObject<GithubFileResponse>(responseBody);
+                var bytes = Convert.FromBase64String(responseObject.Content);
+                string content = Encoding.UTF8.GetString(bytes);
+                List<SaleDto> sales = JsonConvert.DeserializeObject<List<SaleDto>>(content);
+                return sales;
+            });
+        }
+
         public async Task<SaleDataDto> GetSaleDataAsync()
         {
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
@@ -45,24 +57,17 @@ namespace Sales.SaleSource
                     httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Token", token);
 
                     string responseBody = await httpClient.GetStringAsync(fileEntry.Url);
-                    List<SaleDto> salesFromFile = await Task.Run(() =>
-                    {
-                        var responseObject = JsonConvert.DeserializeObject<GithubFileResponse>(responseBody);
-                        var bytes = Convert.FromBase64String(responseObject.Content);
-                        string content = Encoding.UTF8.GetString(bytes);
-                        List<SaleDto> sales = JsonConvert.DeserializeObject<List<SaleDto>>(content);
-                        return sales;
-                    });
-
-                    // If we'd like to take any correct data from file, skipping incorrect
-                    //salesFromFile = salesFromFile.Where(s => s != null && s.HasValidData()).Select(s => s).ToList();
-
-                    // Let's assume, all data must be correct
+                    IList<SaleDto> salesFromFile = await GetSalesFromResponseJson(responseBody);
+                    
                     if (salesFromFile == null)
                     {
                         return saleData;
                     }
 
+                    // If we'd like to take any correct data from file, skipping incorrect
+                    //salesFromFile = salesFromFile.Where(s => s != null && s.HasValidData()).Select(s => s).ToList();
+
+                    // Let's assume, all data must be correct
                     bool IsAllDataCorrect = salesFromFile.Count > 0 && !salesFromFile.Any(s => s == null || !s.HasValidData());
 
                     if (IsAllDataCorrect)

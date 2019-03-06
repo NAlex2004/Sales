@@ -10,32 +10,39 @@ using Sales.SaleSource.Validation;
 
 namespace Tests.Classes
 {
-    public class HookConsumerTestClass 
+    public class HookParserTestClass : GithubHookParser
     {
+        public HookParserTestClass(Func<string, bool> fileNameValidator = null) : base(fileNameValidator)
+        {
+        }
+
+        protected override IEnumerable<GithubFileEntry> GetFileUrls(GithubHook hook)
+        {
+            return base.GetFileUrls(hook);
+        }
+
+        public IEnumerable<GithubFileEntry> GetFileUrlsFromHook(GithubHook hook)
+        {
+            return GetFileUrls(hook);
+        }
+
+        public GithubHook GetHookFromJsonPublic(string hookJson)
+        {
+            return GetHookFromJson(hookJson);
+        }
+    }
+
+    public class HookConsumerTestClass 
+    {            
         class HookConsumer : GithubHookConsumer
         {
-            public HookConsumer(ISalesHandlerFactory saleFileHandlerFactory, string token, Func<string, bool> fileNameValidator = null) : base(saleFileHandlerFactory, token, fileNameValidator)
+            public HookConsumer(ISalesHandlerFactory saleFileHandlerFactory, string token, GithubHookParser hookParser) : base(saleFileHandlerFactory, token, hookParser)
             {
             }
-
-            protected override IEnumerable<GithubFileEntry> GetFileUrls(GithubHook hook)
-            {
-                return base.GetFileUrls(hook);
-            }
-
-            public IEnumerable<GithubFileEntry> GetFileUrlsFromHook(GithubHook hook)
-            {
-                return GetFileUrls(hook);
-            }
-
+            
             public override Task ConsumeHookAsync(string hookJson)
             {
                 return base.ConsumeHookAsync(hookJson);
-            }
-
-            public GithubHook GetHookFromJsonPublic(string hookJson)
-            {
-                return GetHookFromJson(hookJson);
             }
         }
 
@@ -46,17 +53,7 @@ namespace Tests.Classes
         public HookConsumerTestClass(string token)
         {
             ISalesHandlerFactory handlerFactory = new FileHandlerFactoryTestClass();
-            hookConsumer = new HookConsumer(handlerFactory, token, fileName => FileNameValidator.Validate(fileName));
-        }
-
-        public IEnumerable<GithubFileEntry> GetFileUrlsFromHook(GithubHook hook)
-        {
-            return hookConsumer.GetFileUrlsFromHook(hook);
-        }
-
-        public GithubHook GetHookFromJson(string hookJson)
-        {
-            return hookConsumer.GetHookFromJsonPublic(hookJson);
+            hookConsumer = new HookConsumer(handlerFactory, token, new HookParserTestClass(fileName => FileNameValidator.Validate(fileName)));
         }
 
         public void ConsumeHook(string hookJson)

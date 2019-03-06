@@ -31,7 +31,7 @@ namespace Sales.SaleSource
                 result = await salesDataManager.AddOrUpdateSaleDataAsync(saleData);
                 if (result.Succeeded)
                 {
-                    await salesDataManager.RemoveErrorAsync(new SaleManagementResult() { FileName = saleData.SourceFileName });
+                    await salesDataManager.ErrorManager.RemoveErrorAsync(new SaleManagementResult() { FileName = saleData.SourceFileName });
                     return;
                 }                
             }
@@ -45,7 +45,7 @@ namespace Sales.SaleSource
                 };
             }            
 
-            await salesDataManager.AddErrorAsync(result);            
+            await salesDataManager.ErrorManager.AddErrorAsync(result);            
         }
 
         

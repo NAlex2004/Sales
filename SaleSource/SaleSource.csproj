@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="Factory\ISalesHandlerFactory.cs" />
     <Compile Include="Factory\GithubSalesHandlerFactory.cs" />
+    <Compile Include="GithubHookParser.cs" />
     <Compile Include="GithubSaleDataSource.cs" />
     <Compile Include="Github\FileState.cs" />
     <Compile Include="Github\GithubCommit.cs" />

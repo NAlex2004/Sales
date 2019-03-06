@@ -11,17 +11,28 @@ using Sales.DAL.Database;
 using System.Data.Entity.Validation;
 using System.Diagnostics;
 using System.Threading;
+using Sales.Storage.Extensions;
 
 namespace Sales.Storage.Management
 {
     public partial class SaleDbDataManager : ISalesDataManager
     {
         protected ISalesUnitOfWork unitOfWork;
+        protected ErrorManager errorManager;
         static Mutex customersAndProductsSaveMutex = new Mutex(false, "CustomersProductsMutex");
 
         public SaleDbDataManager(ISalesUnitOfWork salesUnitOfWork)
         {
             unitOfWork = salesUnitOfWork ?? throw new ArgumentNullException();
+            errorManager = new ErrorManager(unitOfWork);
+        }
+
+        public ErrorManager ErrorManager
+        {
+            get
+            {
+                return errorManager;
+            }
         }
 
         public SaleDbDataManager() 
@@ -51,14 +62,19 @@ namespace Sales.Storage.Management
             SourceFile sourceFile = await unitOfWork.SourceFiles.Get(file => file.FileName.Equals(saleData.SourceFileName)).FirstOrDefaultAsync();
 
             SaleManagementResult addOrUpdateResult;
-            addOrUpdateResult = sourceFile == null
-                ? await AddSaleDataAsync(saleData)
-                : await UpdateSaleDataAsync(saleData, sourceFile);
+
+            if (sourceFile != null)
+            {
+                var deleted = unitOfWork.Sales.Delete(sale => sale.SourceFileId == sourceFile.Id);
+                unitOfWork.SourceFiles.Delete(file => file.Id == sourceFile.Id);
+            }
+
+            addOrUpdateResult = await AddSaleDataAsync(saleData);
 
             return addOrUpdateResult;
         }
 
-        protected IList<Sale> GetSalesWithSavedProductsAndCustomers(SourceFile sourceFile, IEnumerable<SaleDto> saleDetailsData)
+        protected IList<Sale> GetSalesAndSaveProductsAndCustomers(SourceFile sourceFile, IEnumerable<SaleDto> saleDetailsData)
         {
             List<Sale> sales = new List<Sale>();
             var mapper = Mappings.GetMapper();
@@ -107,7 +123,7 @@ namespace Sales.Storage.Management
                 var mapper = Mappings.GetMapper();
                 try
                 {
-                    var sales = GetSalesWithSavedProductsAndCustomers(sourceFile, saleDetailsData);
+                    var sales = GetSalesAndSaveProductsAndCustomers(sourceFile, saleDetailsData);
                     if (sales.Count == 0)
                     {
                         throw new ArgumentException("Empty sales list.");
@@ -127,7 +143,7 @@ namespace Sales.Storage.Management
                     return new SaleManagementResult()
                     {
                         Succeeded = false,
-                        ErrorMessage = GetLastErrorMessage(e)
+                        ErrorMessage = e.GetLastInnerExceptionMessage()
                     };
                 }
             });
@@ -147,90 +163,7 @@ namespace Sales.Storage.Management
             result.FileName = saleData.SourceFileName;
 
             return result;
-        }
-
-        protected virtual async Task<SaleManagementResult> UpdateSaleDataAsync(SaleDataDto saleData, SourceFile sourceFile)
-        {
-            var deleted = unitOfWork.Sales.Delete(sale => sale.SourceFileId == sourceFile.Id);
-            unitOfWork.SourceFiles.Delete(file => file.Id == sourceFile.Id);
-
-            sourceFile = new SourceFile()
-            {
-                FileDate = saleData.FileDate,
-                FileName = saleData.SourceFileName
-            };
-            SaleManagementResult result = await AddSaleDetailsDataAsync(sourceFile, saleData.Sales);
-            result.FileName = saleData.SourceFileName;
-
-            return result;
-        }
-
-        public async Task<SaleManagementResult> AddErrorAsync(SaleManagementResult badResult)
-        {
-            SaleManagementResult result = new SaleManagementResult()
-            {
-                Succeeded = false,
-                FileName = badResult.FileName                
-            };
-
-            try
-            {
-                unitOfWork.ErrorFiles.Add(new ErrorFile()
-                {
-                    FileName = badResult.FileName,
-                    ErrorDescription = badResult.ErrorMessage
-                });
-                int savedCount = await unitOfWork.SaveChangesAsync();
-                result.Succeeded = savedCount > 0;
-                result.ErrorMessage = savedCount > 0 ? "" : "Data is not saved";                
-            }
-            catch (Exception e)
-            {
-                unitOfWork.DiscardChanges();
-                result.ErrorMessage = GetLastErrorMessage(e);
-            }
-
-            return result;
-        }
-
-        private string GetLastErrorMessage(Exception exception)
-        {
-            while (exception.InnerException != null)
-            {
-                exception = exception.InnerException;
-            }
-
-            return exception.Message;
-        }
-
-        public async Task<SaleManagementResult> RemoveErrorAsync(SaleManagementResult badResult)
-        {
-            SaleManagementResult result = new SaleManagementResult()
-            {
-                FileName = badResult.FileName,
-                Succeeded = false
-            };
-
-            try
-            {
-                var deleted = unitOfWork.ErrorFiles.Delete(error => error.FileName == badResult.FileName);
-                if (deleted.Count() > 0)
-                {
-                    int savedCount = await unitOfWork.SaveChangesAsync();
-                    result.Succeeded = savedCount > 0;
-                    result.ErrorMessage = savedCount > 0 ? "" : "Data is not saved";                    
-
-                    return result;
-                }                
-            }
-            catch (Exception e)
-            {
-                unitOfWork.DiscardChanges();
-                result.ErrorMessage = GetLastErrorMessage(e);                
-            }
-
-            return result;
-        }
+        }        
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
