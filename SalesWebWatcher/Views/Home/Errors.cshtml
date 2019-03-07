@@ -1,0 +1,37 @@
+﻿@model IEnumerable<Sales.SalesWebWatcher.Models.ErrorViewModel>
+
+@{
+    ViewBag.Title = "Errors";
+}
+
+<h2>Errors</h2>
+
+<table class="table">
+    <tr>
+        <th class="id-column">
+            @Html.DisplayNameFor(model => model.Id)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FileName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ErrorDescription)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Id)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.FileName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.ErrorDescription)
+        </td>
+    </tr>
+}
+
+</table>

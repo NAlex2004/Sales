@@ -12,6 +12,9 @@ using System.Web;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Data.SqlClient;
+using System.Data;
+using System.Configuration;
 
 namespace Playground
 {
@@ -68,8 +71,26 @@ namespace Playground
 
         static void Main(string[] args)
         {
-            GetFileContent_Example();
-            Console.ReadKey();
+            string connStr = ConfigurationManager.ConnectionStrings["Sales"].ConnectionString;
+            //SqlConnectionStringBuilder connectionStringBuilder = new SqlConnectionStringBuilder(connStr);
+            using (SqlConnection connection = new SqlConnection(connStr))
+            {
+                connection.Open();
+                using (SqlCommand cmd = new SqlCommand("select * from Customers", connection))
+                {
+                    var reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Console.WriteLine(reader["CustomerName"]); 
+                    }
+                    reader.Close();
+                }
+
+                    connection.Close();
+            }
+
+                //GetFileContent_Example();
+                Console.ReadKey();
         }
     }
 }
