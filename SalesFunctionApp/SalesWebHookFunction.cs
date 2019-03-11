@@ -10,25 +10,28 @@ using Sales.SaleSource;
 using Sales.SaleSource.Factory;
 using Sales.SaleSource.Validation;
 
-namespace SalesFunctionApp
+namespace Sales.SalesFunctionApp
 {
     public static class SalesWebHookFunction
     {
         [FunctionName("SalesWebHookFunction")]
-        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)]HttpRequestMessage req, TraceWriter log)
+        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)]HttpRequestMessage req, TraceWriter log,
+            [Queue("SalesHookQueue")] ICollector<string> hookQueue)
         {
             log.Info("C# HTTP trigger function processed a request.");
 
             // Get request body
-            string hookJson = await req.Content.ReadAsStringAsync();            
+            string hookJson = await req.Content.ReadAsStringAsync();
 
-            string token = ConfigurationManager.AppSettings["token"];
-            GithubHookParser hookParser = new GithubHookParser(fileName => FileNameValidator.Validate(fileName));
-            IHookConsumer hookConsumer = new GithubHookConsumer(new GithubSalesHandlerFactory(), token, hookParser);
+            hookQueue.Add(hookJson);       
 
-            await hookConsumer.ConsumeHookAsync(hookJson);
+            //---------------------------------
+            //string token = ConfigurationManager.AppSettings["token"];
+            //GithubHookParser hookParser = new GithubHookParser(fileName => FileNameValidator.Validate(fileName));
+            //IHookConsumer hookConsumer = new GithubHookConsumer(new GithubSalesHandlerFactory(), token, hookParser);
+
+            //await hookConsumer.ConsumeHookAsync(hookJson);
             return req.CreateResponse(HttpStatusCode.OK, "Hello");
-            ;
         }
     }
 }
