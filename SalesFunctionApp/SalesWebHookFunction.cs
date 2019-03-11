@@ -31,7 +31,7 @@ namespace Sales.SalesFunctionApp
             //IHookConsumer hookConsumer = new GithubHookConsumer(new GithubSalesHandlerFactory(), token, hookParser);
 
             //await hookConsumer.ConsumeHookAsync(hookJson);
-            return req.CreateResponse(HttpStatusCode.OK, "Hello");
+            return req.CreateResponse(HttpStatusCode.OK, "Hook accepted");
         }
     }
 }
