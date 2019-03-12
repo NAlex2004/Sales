@@ -45,10 +45,10 @@ namespace Sales.SaleSource
                 ISaleDataSource saleDataSource = new GithubSaleDataSource(entry, token);
                 
                 Task task = saleDataSource.GetSaleDataAsync()
-                    .ContinueWith(async saleDataTask =>
+                    .ContinueWith(saleDataTask =>
                     {
                         var saleDataResult = saleDataTask.Result;
-                        await saleFileHandler.HandleSaleDataAsync(saleDataResult);
+                        saleFileHandler.HandleSaleDataAsync(saleDataResult).Wait();
                     });
                 tasks.Add(task);
             }
