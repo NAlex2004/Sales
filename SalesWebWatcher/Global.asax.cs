@@ -17,7 +17,6 @@ namespace Sales.SalesWebWatcher
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             MappingConfig.CreateMappings();
-            DependencyResolver.SetResolver(new SalesWatcherDependencyResolver());
         }
     }
 }
