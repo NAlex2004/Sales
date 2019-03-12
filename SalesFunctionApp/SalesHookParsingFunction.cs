@@ -4,6 +4,8 @@ using Microsoft.Azure.WebJobs.Host;
 using Sales.SaleSource;
 using Sales.SaleSource.Github;
 using Sales.SaleSource.Validation;
+using Sales.SalesFunctionApp.Dependency;
+using Unity;
 
 namespace Sales.SalesFunctionApp
 {
@@ -15,7 +17,7 @@ namespace Sales.SalesFunctionApp
         {
             log.Info($"C# Queue trigger function processed: SalesHookParsingFunction");
 
-            GithubHookParser hookParser = new GithubHookParser(fileName => FileNameValidator.Validate(fileName));
+            GithubHookParser hookParser = DependencyContainer.Container.Resolve<GithubHookParser>();
             var fileEntries = hookParser.GetFileEntriesFromHook(hookJson);
 
             foreach (var fileEntry in fileEntries)

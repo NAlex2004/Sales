@@ -24,13 +24,6 @@ namespace Sales.SalesFunctionApp
             string hookJson = await req.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             hookQueue.Add(hookJson);       
-
-            //---------------------------------
-            //string token = ConfigurationManager.AppSettings["token"];
-            //GithubHookParser hookParser = new GithubHookParser(fileName => FileNameValidator.Validate(fileName));
-            //IHookConsumer hookConsumer = new GithubHookConsumer(new GithubSalesHandlerFactory(), token, hookParser);
-
-            //await hookConsumer.ConsumeHookAsync(hookJson);
             return req.CreateResponse(HttpStatusCode.OK, "Hook accepted");
         }
     }

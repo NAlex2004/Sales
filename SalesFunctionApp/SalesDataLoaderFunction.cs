@@ -5,6 +5,9 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Sales.SaleSource;
 using Sales.SaleSource.Github;
+using Sales.SalesFunctionApp.Dependency;
+using Unity;
+using Unity.Resolution;
 
 namespace Sales.SalesFunctionApp
 {
@@ -16,8 +19,13 @@ namespace Sales.SalesFunctionApp
         {
             log.Info($"C# Queue trigger function processed: SalesDataLoaderFunction");
 
-            string token = ConfigurationManager.AppSettings["token"];
-            ISaleDataSource saleDataSource = new GithubSaleDataSource(fileEntry, token);
+            string token = ConfigurationManager.AppSettings["token"];            
+            ISaleDataSource saleDataSource = DependencyContainer.Container.Resolve<ISaleDataSource>(new ResolverOverride[]
+            {
+                new ParameterOverride("fileEntry", fileEntry),
+                new ParameterOverride("githubRepoToken", token)
+            });
+
             SaleDataObtainmentResult obtainmentResult = await saleDataSource.GetSaleDataAsync().ConfigureAwait(false);
             if (obtainmentResult.Success)
             {
