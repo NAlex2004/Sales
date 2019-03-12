@@ -141,7 +141,9 @@ namespace Tests
                         var errorAdded = manager.ErrorManager.AddErrorAsync(new SaleManagementResult() { FileName = "AlNaz_04032019.json", ErrorMessage = "Test error" }).GetAwaiter().GetResult();                        
                         int errors = unitOfWork.ErrorFiles.Get().Count();
 
-                        fileHandler.HandleSaleSourceAsync(new GithubSaleDataSource(new GithubFileEntry() { Url = url, CommitDate = DateTime.Now }, token)).GetAwaiter().GetResult();
+                        ISaleDataSource saleDataSource = new GithubSaleDataSource(new GithubFileEntry() { Url = url, CommitDate = DateTime.Now }, token);
+                        var fileLoadResult = saleDataSource.GetSaleDataAsync().GetAwaiter().GetResult();
+                        fileHandler.HandleSaleDataAsync(fileLoadResult).GetAwaiter().GetResult();
                         int errorsAfter = unitOfWork.ErrorFiles.Get().Count();
 
                         Assert.IsTrue(errorAdded.Succeeded);
@@ -149,7 +151,7 @@ namespace Tests
 
                         // Second time same data
 
-                        fileHandler.HandleSaleSourceAsync(new GithubSaleDataSource(new GithubFileEntry() { Url = url, CommitDate = DateTime.Now }, token)).GetAwaiter().GetResult();
+                        fileHandler.HandleSaleDataAsync(fileLoadResult).GetAwaiter().GetResult();
 
                         var sourceFile = unitOfWork.SourceFiles.Get(f => f.FileName.Equals("AlNaz_04032019.json")).Single();                        
                         int salesCount = unitOfWork.Sales.Get(s => s.SourceFileId == sourceFile.Id).Count();

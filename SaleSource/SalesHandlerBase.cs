@@ -12,8 +12,8 @@ namespace Sales.SaleSource
             this.salesDataManager = salesDataManager ?? throw new ArgumentNullException();
         }
 
-        //public abstract Task HandleSaleSourceAsync(SaleDataObtainmentResult dataObtainmentResult);
-        public abstract Task HandleSaleSourceAsync(ISaleDataSource saleDataSource);
+        public abstract Task HandleSaleDataAsync(SaleDataObtainmentResult dataObtainmentResult);
+        //public abstract Task HandleSaleSourceAsync(ISaleDataSource saleDataSource);
 
         #region IDisposable Support
         private bool disposedValue = false;

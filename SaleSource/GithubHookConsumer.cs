@@ -43,14 +43,24 @@ namespace Sales.SaleSource
                 handlers.Add(saleFileHandler);
 
                 ISaleDataSource saleDataSource = new GithubSaleDataSource(entry, token);
-                Task task = saleFileHandler.HandleSaleSourceAsync(saleDataSource);
+                
+                Task task = saleDataSource.GetSaleDataAsync()
+                    .ContinueWith(async saleDataTask =>
+                    {
+                        var saleDataResult = saleDataTask.Result;
+                        await saleFileHandler.HandleSaleDataAsync(saleDataResult);
+                    });
                 tasks.Add(task);
             }
             await Task.WhenAll(tasks);
 
             for (int handlerIndex = 0; handlerIndex < handlers.Count; handlerIndex++)
             {
-                handlers[handlerIndex].Dispose();
+                try
+                {
+                    handlers[handlerIndex]?.Dispose();
+                }
+                catch { }
             }
         }
     }

@@ -14,7 +14,7 @@ namespace Tests.Classes
         {
         }
 
-        public override Task HandleSaleSourceAsync(ISaleDataSource saleDataSource)
+        public override Task HandleSaleDataAsync(SaleDataObtainmentResult dataObtainmentResult)
         {
             return Task.Delay(100);
         }

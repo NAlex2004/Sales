@@ -21,17 +21,16 @@ namespace Sales.SaleSource
         {            
         }
 
-        public override async Task HandleSaleSourceAsync(ISaleDataSource saleDataSource)
+        public override async Task HandleSaleDataAsync(SaleDataObtainmentResult dataObtainmentResult)
         {
-            SaleDataObtainmentResult dataResult = await saleDataSource.GetSaleDataAsync();
             SaleManagementResult result;
 
-            if (dataResult.Success && dataResult.SaleData.Sales.Count > 0)
+            if (dataObtainmentResult.Success && dataObtainmentResult.SaleData.Sales.Count > 0)
             {                
-                result = await salesDataManager.AddOrUpdateSaleDataAsync(dataResult.SaleData);
+                result = await salesDataManager.AddOrUpdateSaleDataAsync(dataObtainmentResult.SaleData);
                 if (result.Succeeded)
                 {
-                    await salesDataManager.ErrorManager.RemoveErrorAsync(new SaleManagementResult() { FileName = dataResult.SaleData.SourceFileName });
+                    await salesDataManager.ErrorManager.RemoveErrorAsync(new SaleManagementResult() { FileName = dataObtainmentResult.SaleData.SourceFileName });
                     return;
                 }                
             }
@@ -39,13 +38,10 @@ namespace Sales.SaleSource
             {
                 result = new SaleManagementResult()
                 {
-                    FileName = dataResult.SaleData.SourceFileName,
+                    FileName = dataObtainmentResult.SaleData.SourceFileName,
                     Succeeded = false,
-                    ErrorMessage = dataResult.ErrorMessage
+                    ErrorMessage = dataObtainmentResult.ErrorMessage
                 };
-                //result.ErrorMessage = dataResult.Success
-                //    ? "[GithubSaleFileHandler.HandleSaleFileAsync]: Skipping file because it has no suitable data."
-                //    : $"[GithubSaleFileHandler.HandleSaleFileAsync]: {dataResult.ErrorMessage}";
             }            
 
             await salesDataManager.ErrorManager.AddErrorAsync(result);            

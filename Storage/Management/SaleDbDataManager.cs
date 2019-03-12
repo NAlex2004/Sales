@@ -101,7 +101,7 @@ namespace Sales.Storage.Management
 
                 return sales;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 unitOfWork.DiscardChanges();
                 return new Sale[0];
