@@ -69,6 +69,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DAL\DAL.csproj">
+      <Project>{C890064B-A5A5-44BC-9CC1-1E6FFB24ADD2}</Project>
+      <Name>DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SalesEntity\SalesEntity.csproj">
+      <Project>{AAE442BB-5844-4935-AC5F-B1E25AF6784C}</Project>
+      <Name>SalesEntity</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Storage\Storage.csproj">
       <Project>{58170bd4-8601-486f-b120-3e252f92e575}</Project>
       <Name>Storage</Name>

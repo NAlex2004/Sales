@@ -35,10 +35,10 @@ namespace Sales.Storage.Management
             }
         }
 
-        public SaleDbDataManager() 
-            : this(new SalesDbUnitOfWork(new SalesDbContext()))
-        {
-        }
+        //public SaleDbDataManager() 
+        //    : this(new SalesDbUnitOfWork(new SalesDbContext()))
+        //{
+        //}
 
         public async Task<SaleManagementResult> AddOrUpdateSaleDataAsync(SaleDataDto saleData)
         {

@@ -11,7 +11,7 @@ namespace Sales.SaleSource
 {
     public class GithubHookParser
     {
-        private const string GITHUB_URL = "https://api.github.com/repos/";
+        private readonly string GITHUB_URL = "https://api.github.com/repos/";
         protected Func<string, bool> fileNameValidator;
 
         public GithubHookParser(Func<string, bool> fileNameValidator = null)

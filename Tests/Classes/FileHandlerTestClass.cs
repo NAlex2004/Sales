@@ -17,12 +17,6 @@ namespace Tests.Classes
         {
             this.token = token;
         }
-
-        public FileHandlerTestClass(string token) : base(new SaleDbDataManager())
-        {
-            this.token = token;
-        }
-
         
         public SaleDataDto GetSalesFromGithubSync(string url)
         {

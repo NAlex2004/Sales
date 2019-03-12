@@ -12,6 +12,8 @@ using Sales.DAL.Database;
 using Sales.SaleSource.Factory;
 using Sales.SaleSource.Validation;
 using System.Threading.Tasks;
+using Unity;
+using Unity.Resolution;
 
 namespace Tests
 {
@@ -108,7 +110,8 @@ namespace Tests
         public void GetSalesFromGithub_ResultIsEmpty_OnBadToken()
         {
             string url = "https://api.github.com/repos/NAlex2004/SalesData/contents/Manager_2/AlNaz_04032019.json";
-            FileHandlerTestClass fileHandler = new FileHandlerTestClass("123");
+            var dataManager = DependencyContainer.Container.Resolve<ISalesDataManager>();
+            FileHandlerTestClass fileHandler = new FileHandlerTestClass(dataManager, "123");
 
             SaleDataDto saleData = fileHandler.GetSalesFromGithubSync(url);
 
@@ -133,15 +136,19 @@ namespace Tests
 
             lock (lockObject)
             {
-                var manager = new SaleDbDataManager();
+                ISalesDataManager manager = DependencyContainer.Container.Resolve<ISalesDataManager>();
                 using (GithubSalesHandler fileHandler = new GithubSalesHandler(manager))
                 {
-                    using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new TestDbContext()))
+                    using (ISalesUnitOfWork unitOfWork = DependencyContainer.Container.Resolve<ISalesUnitOfWork>())
                     {
                         var errorAdded = manager.ErrorManager.AddErrorAsync(new SaleManagementResult() { FileName = "AlNaz_04032019.json", ErrorMessage = "Test error" }).GetAwaiter().GetResult();                        
-                        int errors = unitOfWork.ErrorFiles.Get().Count();
+                        int errors = unitOfWork.ErrorFiles.Get().Count();                                                    
+                        ISaleDataSource saleDataSource = DependencyContainer.Container.Resolve<ISaleDataSource>(new ResolverOverride[]
+                        {
+                            new ParameterOverride("fileEntry", new GithubFileEntry() { Url = url, CommitDate = DateTime.Now }),
+                            new ParameterOverride("githubRepoToken", token)
+                        });
 
-                        ISaleDataSource saleDataSource = new GithubSaleDataSource(new GithubFileEntry() { Url = url, CommitDate = DateTime.Now }, token);
                         var fileLoadResult = saleDataSource.GetSaleDataAsync().GetAwaiter().GetResult();
                         fileHandler.HandleSaleDataAsync(fileLoadResult).GetAwaiter().GetResult();
                         int errorsAfter = unitOfWork.ErrorFiles.Get().Count();
@@ -166,10 +173,15 @@ namespace Tests
         [TestMethod]
         public void GithubHookConsumer_NothingInDb_WhenHandlingBadHook()
         {
-            ISalesHandlerFactory fileHandlerFactory = new GithubSalesHandlerFactory();            
-            IHookConsumer hookConsumer = new GithubHookConsumer(fileHandlerFactory, token, new GithubHookParser(f => FileNameValidator.Validate(f)));
+            ISalesHandlerFactory fileHandlerFactory = new TestGithubSalesHandlerFactory(DependencyContainer.Container);
+            IHookConsumer hookConsumer = DependencyContainer.Container.Resolve<IHookConsumer>(new ResolverOverride[]
+                {
+                    new ParameterOverride(typeof(ISalesHandlerFactory), fileHandlerFactory),
+                    new ParameterOverride("githubRepoToken", token),
+                    new ParameterOverride("hookParser", new GithubHookParser(f => FileNameValidator.Validate(f)))
+                });                
 
-            using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new TestDbContext()))
+            using (ISalesUnitOfWork unitOfWork = DependencyContainer.Container.Resolve<ISalesUnitOfWork>())
             {
                 lock (lockObject)
                 {
@@ -198,10 +210,15 @@ namespace Tests
         [TestMethod]        
         public void GithubHookConsumer_DbHasCorrectData_WhenHandlingGoodHook()
         {
-            ISalesHandlerFactory fileHandlerFactory = new GithubSalesHandlerFactory();
-            IHookConsumer hookConsumer = new GithubHookConsumer(fileHandlerFactory, token, new GithubHookParser(f => FileNameValidator.Validate(f)));
+            ISalesHandlerFactory fileHandlerFactory = new TestGithubSalesHandlerFactory(DependencyContainer.Container);
+            IHookConsumer hookConsumer = DependencyContainer.Container.Resolve<IHookConsumer>(new ResolverOverride[]
+                {
+                    new ParameterOverride(typeof(ISalesHandlerFactory), fileHandlerFactory),
+                    new ParameterOverride("githubRepoToken", token),
+                    new ParameterOverride("hookParser", new GithubHookParser(f => FileNameValidator.Validate(f)))
+                });
 
-            using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new TestDbContext()))
+            using (ISalesUnitOfWork unitOfWork = DependencyContainer.Container.Resolve<ISalesUnitOfWork>())
             {
                 lock(lockObject)
                 {
@@ -232,11 +249,21 @@ namespace Tests
         [TestMethod]
         public void GithubHookConsumer_HandlingSameHookInParallelThreads_EachFileSavedOnlyOnce()
         {
-            ISalesHandlerFactory fileHandlerFactory = new GithubSalesHandlerFactory();
-            IHookConsumer hookConsumer = new GithubHookConsumer(fileHandlerFactory, token, new GithubHookParser(f => FileNameValidator.Validate(f)));
-            IHookConsumer hookConsumer2 = new GithubHookConsumer(fileHandlerFactory, token, new GithubHookParser(f => FileNameValidator.Validate(f)));
+            ISalesHandlerFactory fileHandlerFactory = new TestGithubSalesHandlerFactory(DependencyContainer.Container);
+            IHookConsumer hookConsumer = DependencyContainer.Container.Resolve<IHookConsumer>(new ResolverOverride[]
+                {
+                    new ParameterOverride(typeof(ISalesHandlerFactory), fileHandlerFactory),
+                    new ParameterOverride("githubRepoToken", token),
+                    new ParameterOverride("hookParser", new GithubHookParser(f => FileNameValidator.Validate(f)))
+                });
+            IHookConsumer hookConsumer2 = DependencyContainer.Container.Resolve<IHookConsumer>(new ResolverOverride[]
+                {
+                    new ParameterOverride(typeof(ISalesHandlerFactory), fileHandlerFactory),
+                    new ParameterOverride("githubRepoToken", token),
+                    new ParameterOverride("hookParser", new GithubHookParser(f => FileNameValidator.Validate(f)))
+                });
 
-            using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new TestDbContext()))
+            using (ISalesUnitOfWork unitOfWork = DependencyContainer.Container.Resolve<ISalesUnitOfWork>())
             {
                 lock(lockObject)
                 {

@@ -10,7 +10,7 @@ namespace Tests.Classes
 {
     public class EmptySaleFileHandlerTestClass : SalesHandlerBase
     {
-        public EmptySaleFileHandlerTestClass() : base(new SaleDbDataManager())
+        public EmptySaleFileHandlerTestClass(ISalesDataManager dataManager) : base(dataManager)
         {
         }
 

@@ -15,9 +15,16 @@ using System.Net.Http.Headers;
 using System.Data.SqlClient;
 using System.Data;
 using System.Configuration;
+using Unity;
+using Sales.SaleSource.Factory;
+using Sales.SaleSource;
+using Sales.Storage.Management;
+using Sales.DAL.Database;
+using Sales.DAL.Interfaces;
 
 namespace Playground
 {
+
     public class HookResponse
     {
         public string Name { get; set; }
@@ -28,6 +35,15 @@ namespace Playground
 
     class Program
     {
+        static IUnityContainer container = new UnityContainer();
+
+        static void CreateDepenencies()
+        {
+            container.RegisterType<ISalesUnitOfWork, SalesDbUnitOfWork>();// Invoke.Constructor(Resolve.Parameter()));
+            container.RegisterType<ISalesDataManager, SaleDbDataManager>();
+            container.RegisterType<SalesHandlerBase, GithubSalesHandler>();
+        }
+
         // не забыть хрень в конфиге!
         static void GetFileContent_Example()
         {
@@ -71,26 +87,12 @@ namespace Playground
 
         static void Main(string[] args)
         {
-            string connStr = ConfigurationManager.ConnectionStrings["Sales"].ConnectionString;
-            //SqlConnectionStringBuilder connectionStringBuilder = new SqlConnectionStringBuilder(connStr);
-            using (SqlConnection connection = new SqlConnection(connStr))
-            {
-                connection.Open();
-                using (SqlCommand cmd = new SqlCommand("select * from Customers", connection))
-                {
-                    var reader = cmd.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        Console.WriteLine(reader["CustomerName"]); 
-                    }
-                    reader.Close();
-                }
-
-                    connection.Close();
-            }
+            CreateDepenencies();
+            ISalesUnitOfWork unitOfWork = container.Resolve<ISalesUnitOfWork>();
+            var cust = unitOfWork.Customers.Get().ToList();
 
                 //GetFileContent_Example();
-                Console.ReadKey();
+            Console.ReadKey();
         }
     }
 }

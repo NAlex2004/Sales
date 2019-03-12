@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Unity;
 
 namespace Tests
 {
@@ -54,7 +55,7 @@ namespace Tests
         [TestMethod]
         public void AddNewSaleWithNewProduct_AddsProduct()
         {
-            using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new TestDbContext()))
+            using (ISalesUnitOfWork unitOfWork = DependencyContainer.Container.Resolve<ISalesUnitOfWork>())
             {                
                 SourceFile sourceFile = new SourceFile()
                 {
@@ -118,7 +119,7 @@ namespace Tests
         [TestMethod]
         public void AddingSameProduct_AddedOnce()
         {
-            using (var unitOfWork = new SalesDbUnitOfWork(new TestDbContext()))
+            using (var unitOfWork = DependencyContainer.Container.Resolve<ISalesUnitOfWork>())
             {
                 unitOfWork.Products.Delete(p => true);
                 unitOfWork.SaveChanges();
@@ -152,8 +153,8 @@ namespace Tests
         [TestMethod]
         public void AddingSameProductInDifferentContexts_AddedOnce()
         {
-            using (var unitOfWork = new SalesDbUnitOfWork(new TestDbContext()))
-            using (var unitOfWork2 = new SalesDbUnitOfWork(new TestDbContext()))
+            using (var unitOfWork = DependencyContainer.Container.Resolve<ISalesUnitOfWork>())
+            using (var unitOfWork2 = DependencyContainer.Container.Resolve<ISalesUnitOfWork>())
             {
                 unitOfWork.Products.Delete(p => true);
                 unitOfWork.SaveChanges();
@@ -203,7 +204,7 @@ namespace Tests
                 FileName = "item"
             };
 
-            using (var unitOfWork = new SalesDbUnitOfWork(new TestDbContext()))
+            using (var unitOfWork = DependencyContainer.Container.Resolve<ISalesUnitOfWork>())
             {
                 unitOfWork.SourceFiles.Delete(f => true);
                 unitOfWork.SaveChanges();
@@ -241,8 +242,8 @@ namespace Tests
             int productsCount = saleDataDto.Sales.Select(s => s.ProductName).Distinct().Count();
             int salesCount = groupedSales.Count();
 
-            using (ISalesUnitOfWork unitOfWork = new SalesDbUnitOfWork(new TestDbContext()))
-            using (SaleDbDataManager manager = new SaleDbDataManager(unitOfWork))
+            using (ISalesUnitOfWork unitOfWork = DependencyContainer.Container.Resolve<ISalesUnitOfWork>())
+            using (ISalesDataManager manager = DependencyContainer.Container.Resolve<ISalesDataManager>())
             {
                 int initialCustomersCount = unitOfWork.Customers.Get().Count();
                 int initialProductsCount = unitOfWork.Products.Get().Count();

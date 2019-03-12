@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
 using System.IO;
+using Sales.Storage.Management;
+using Unity;
 
 namespace Tests.Classes
 {
@@ -36,12 +38,13 @@ namespace Tests.Classes
 
         public SalesHandlerBase GetSalesHandler()
         {
+            var dataManager = DependencyContainer.Container.Resolve<ISalesDataManager>();
             if (generateEmpty)
-            {
-                return new EmptySaleFileHandlerTestClass();
+            {                
+                return new EmptySaleFileHandlerTestClass(dataManager);
             }
 
-            return new FileHandlerTestClass(Token);
+            return new FileHandlerTestClass(dataManager, Token);
         }
     }
 }
