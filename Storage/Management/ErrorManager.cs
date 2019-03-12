@@ -33,7 +33,7 @@ namespace Sales.Storage.Management
                     FileName = badResult.FileName,
                     ErrorDescription = badResult.ErrorMessage
                 });
-                int savedCount = await unitOfWork.SaveChangesAsync();
+                int savedCount = await unitOfWork.SaveChangesAsync().ConfigureAwait(false);
                 result.Succeeded = savedCount > 0;
                 result.ErrorMessage = savedCount > 0 ? "" : "Data is not saved";
             }
@@ -59,7 +59,7 @@ namespace Sales.Storage.Management
                 var deleted = unitOfWork.ErrorFiles.Delete(error => error.FileName == badResult.FileName);
                 if (deleted.Count() > 0)
                 {
-                    int savedCount = await unitOfWork.SaveChangesAsync();
+                    int savedCount = await unitOfWork.SaveChangesAsync().ConfigureAwait(false);
                     result.Succeeded = savedCount > 0;
                     result.ErrorMessage = savedCount > 0 ? "" : "Data is not saved";
 

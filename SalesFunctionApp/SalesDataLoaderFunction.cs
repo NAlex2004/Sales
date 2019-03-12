@@ -18,7 +18,7 @@ namespace Sales.SalesFunctionApp
 
             string token = ConfigurationManager.AppSettings["token"];
             ISaleDataSource saleDataSource = new GithubSaleDataSource(fileEntry, token);
-            SaleDataObtainmentResult obtainmentResult = await saleDataSource.GetSaleDataAsync();
+            SaleDataObtainmentResult obtainmentResult = await saleDataSource.GetSaleDataAsync().ConfigureAwait(false);
             if (obtainmentResult.Success)
             {
                 log.Info($"[SalesDataLoaderFunction]: loaded {fileEntry.Url}");                

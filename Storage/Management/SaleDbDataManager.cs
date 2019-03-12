@@ -59,7 +59,7 @@ namespace Sales.Storage.Management
                     TotalSum = sales.Sum(s => s.TotalSum)
                 }).ToList();
 
-            SourceFile sourceFile = await unitOfWork.SourceFiles.Get(file => file.FileName.Equals(saleData.SourceFileName)).FirstOrDefaultAsync();
+            SourceFile sourceFile = await unitOfWork.SourceFiles.Get(file => file.FileName.Equals(saleData.SourceFileName)).FirstOrDefaultAsync().ConfigureAwait(false);
 
             SaleManagementResult addOrUpdateResult;
 
@@ -118,37 +118,32 @@ namespace Sales.Storage.Management
 
         protected virtual async Task<SaleManagementResult> AddSaleDetailsDataAsync(SourceFile sourceFile, IList<SaleDto> saleDetailsData)
         {
-            SaleManagementResult result = await Task.Run(() =>
+            var mapper = Mappings.GetMapper();
+            try
             {
-                var mapper = Mappings.GetMapper();
-                try
+                var sales = GetSalesAndSaveProductsAndCustomers(sourceFile, saleDetailsData);
+                if (sales.Count == 0)
                 {
-                    var sales = GetSalesAndSaveProductsAndCustomers(sourceFile, saleDetailsData);
-                    if (sales.Count == 0)
-                    {
-                        throw new ArgumentException("Empty sales list or thread error.");
-                    }
-                    unitOfWork.SourceFiles.Add(sourceFile);
-                    unitOfWork.Sales.AddRange(sales);
-                    unitOfWork.SaveChanges();
-
-                    return new SaleManagementResult()
-                    {
-                        Succeeded = true                        
-                    };
+                    throw new ArgumentException("Empty sales list or thread error.");
                 }
-                catch (Exception e)
+                unitOfWork.SourceFiles.Add(sourceFile);
+                unitOfWork.Sales.AddRange(sales);
+                await unitOfWork.SaveChangesAsync().ConfigureAwait(false);
+
+                return new SaleManagementResult()
                 {
-                    unitOfWork.DiscardChanges();
-                    return new SaleManagementResult()
-                    {
-                        Succeeded = false,
-                        ErrorMessage = e.GetLastInnerExceptionMessage()
-                    };
-                }
-            });
-
-            return result;
+                    Succeeded = true
+                };
+            }
+            catch (Exception e)
+            {
+                unitOfWork.DiscardChanges();
+                return new SaleManagementResult()
+                {
+                    Succeeded = false,
+                    ErrorMessage = e.GetLastInnerExceptionMessage()
+                };
+            }
         }
 
         protected virtual async Task<SaleManagementResult> AddSaleDataAsync(SaleDataDto saleData)
@@ -159,7 +154,7 @@ namespace Sales.Storage.Management
                 FileDate = saleData.FileDate
             };            
 
-            SaleManagementResult result = await AddSaleDetailsDataAsync(sourceFile, saleData.Sales);
+            SaleManagementResult result = await AddSaleDetailsDataAsync(sourceFile, saleData.Sales).ConfigureAwait(false);
             result.FileName = saleData.SourceFileName;
 
             return result;

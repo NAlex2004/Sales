@@ -52,7 +52,7 @@ namespace Sales.SaleSource
                     });
                 tasks.Add(task);
             }
-            await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks).ConfigureAwait(false);
 
             for (int handlerIndex = 0; handlerIndex < handlers.Count; handlerIndex++)
             {

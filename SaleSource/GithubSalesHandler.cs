@@ -27,10 +27,10 @@ namespace Sales.SaleSource
 
             if (dataObtainmentResult.Success && dataObtainmentResult.SaleData.Sales.Count > 0)
             {                
-                result = await salesDataManager.AddOrUpdateSaleDataAsync(dataObtainmentResult.SaleData);
+                result = await salesDataManager.AddOrUpdateSaleDataAsync(dataObtainmentResult.SaleData).ConfigureAwait(false);
                 if (result.Succeeded)
                 {
-                    await salesDataManager.ErrorManager.RemoveErrorAsync(new SaleManagementResult() { FileName = dataObtainmentResult.SaleData.SourceFileName });
+                    await salesDataManager.ErrorManager.RemoveErrorAsync(new SaleManagementResult() { FileName = dataObtainmentResult.SaleData.SourceFileName }).ConfigureAwait(false);
                     return;
                 }                
             }
@@ -44,7 +44,7 @@ namespace Sales.SaleSource
                 };
             }            
 
-            await salesDataManager.ErrorManager.AddErrorAsync(result);            
+            await salesDataManager.ErrorManager.AddErrorAsync(result).ConfigureAwait(false);            
         }
 
         

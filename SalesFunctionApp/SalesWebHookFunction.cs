@@ -21,7 +21,7 @@ namespace Sales.SalesFunctionApp
             log.Info("C# HTTP trigger function processed a request.");
 
             // Get request body
-            string hookJson = await req.Content.ReadAsStringAsync();
+            string hookJson = await req.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             hookQueue.Add(hookJson);       
 

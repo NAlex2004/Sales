@@ -35,7 +35,7 @@ namespace Sales.SaleSource
                 string content = Encoding.UTF8.GetString(bytes);
                 List<SaleDto> sales = JsonConvert.DeserializeObject<List<SaleDto>>(content);
                 return sales;
-            });
+            }).ConfigureAwait(false);
         }
 
         public async Task<SaleDataObtainmentResult> GetSaleDataAsync()
@@ -65,8 +65,8 @@ namespace Sales.SaleSource
                     httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "NAlex2004");
                     httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Token", token);
 
-                    string responseBody = await httpClient.GetStringAsync(fileEntry.Url);
-                    IList<SaleDto> salesFromFile = await GetSalesFromResponseJson(responseBody);
+                    string responseBody = await httpClient.GetStringAsync(fileEntry.Url).ConfigureAwait(false);
+                    IList<SaleDto> salesFromFile = await GetSalesFromResponseJson(responseBody).ConfigureAwait(false);
 
                     // If we'd like to take any correct data from file, skipping incorrect
                     //salesFromFile = salesFromFile.Where(s => s != null && s.HasValidData()).Select(s => s).ToList();
