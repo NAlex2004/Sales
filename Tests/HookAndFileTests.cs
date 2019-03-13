@@ -24,12 +24,12 @@ namespace Tests
         SalesHandlerBase fileHandlerTestClass;
         HookParserTestClass hookParser = new HookParserTestClass(fileName => FileNameValidator.Validate(fileName));
 
-        string token = File.ReadAllText("../../Data/token.txt");
+        string token;
         static object lockObject = new object();
 
         public HookAndFileTests()
         {
-            hookConsumer = new HookConsumerTestClass(token);
+            hookConsumer = new HookConsumerTestClass(Token);
         }
 
         FileHandlerTestClass FileHandler
@@ -46,6 +46,26 @@ namespace Tests
             }
         }
 
+        public string Token
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(token))
+                {
+                    try
+                    {
+                        token = File.ReadAllText("../../Data/token.txt");
+                    }
+                    catch
+                    {
+                        token = "123";
+                    }
+                }
+
+                return token;
+            }
+        }
+
         private GithubHook GetHook()
         {            
             string hookJson = File.ReadAllText("../../Data/hook1.json");
@@ -53,7 +73,7 @@ namespace Tests
 
             return hook;
         }
-
+        
         [TestMethod]
         public void GetHookFromJson_ReturnsCorrectResult()
         {
@@ -146,7 +166,7 @@ namespace Tests
                         ISaleDataSource saleDataSource = DependencyContainer.Container.Resolve<ISaleDataSource>(new ResolverOverride[]
                         {
                             new ParameterOverride("fileEntry", new GithubFileEntry() { Url = url, CommitDate = DateTime.Now }),
-                            new ParameterOverride("githubRepoToken", token)
+                            new ParameterOverride("githubRepoToken", Token)
                         });
 
                         var fileLoadResult = saleDataSource.GetSaleDataAsync().GetAwaiter().GetResult();
@@ -177,7 +197,7 @@ namespace Tests
             IHookConsumer hookConsumer = DependencyContainer.Container.Resolve<IHookConsumer>(new ResolverOverride[]
                 {
                     new ParameterOverride(typeof(ISalesHandlerFactory), fileHandlerFactory),
-                    new ParameterOverride("githubRepoToken", token),
+                    new ParameterOverride("githubRepoToken", Token),
                     new ParameterOverride("hookParser", new GithubHookParser(f => FileNameValidator.Validate(f)))
                 });                
 
@@ -214,7 +234,7 @@ namespace Tests
             IHookConsumer hookConsumer = DependencyContainer.Container.Resolve<IHookConsumer>(new ResolverOverride[]
                 {
                     new ParameterOverride(typeof(ISalesHandlerFactory), fileHandlerFactory),
-                    new ParameterOverride("githubRepoToken", token),
+                    new ParameterOverride("githubRepoToken", Token),
                     new ParameterOverride("hookParser", new GithubHookParser(f => FileNameValidator.Validate(f)))
                 });
 
@@ -253,13 +273,13 @@ namespace Tests
             IHookConsumer hookConsumer = DependencyContainer.Container.Resolve<IHookConsumer>(new ResolverOverride[]
                 {
                     new ParameterOverride(typeof(ISalesHandlerFactory), fileHandlerFactory),
-                    new ParameterOverride("githubRepoToken", token),
+                    new ParameterOverride("githubRepoToken", Token),
                     new ParameterOverride("hookParser", new GithubHookParser(f => FileNameValidator.Validate(f)))
                 });
             IHookConsumer hookConsumer2 = DependencyContainer.Container.Resolve<IHookConsumer>(new ResolverOverride[]
                 {
                     new ParameterOverride(typeof(ISalesHandlerFactory), fileHandlerFactory),
-                    new ParameterOverride("githubRepoToken", token),
+                    new ParameterOverride("githubRepoToken", Token),
                     new ParameterOverride("hookParser", new GithubHookParser(f => FileNameValidator.Validate(f)))
                 });
 
