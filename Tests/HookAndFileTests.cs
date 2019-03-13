@@ -90,7 +90,7 @@ namespace Tests
             Assert.AreEqual(1, hook.Commits[3].Removed.Count);
             Assert.AreEqual(9, hook.Commits.Sum(c => c.Added.Count + c.Modified.Count + c.Removed.Count));
         }
-
+        
         [TestMethod]
         public void GetFileUrlsFromHook_ReturnCorrectUrls()
         {
@@ -138,6 +138,7 @@ namespace Tests
             Assert.AreEqual(0, saleData.Sales.Count);
         }
 
+        [TestCategory("notCI")]
         [TestMethod]
         public void GetSalesFromGithub_ReturnsCorrectData_WithCorrectToken()
         {
@@ -149,6 +150,7 @@ namespace Tests
             Assert.AreEqual(1348.7m, saleData.Sales.Sum(s => s.TotalSum));
         }
 
+        [TestCategory("notCI")]
         [TestMethod]
         public void SaleFileHandling_ErrorRemovedWhenDataHandled_And_SecondTimeSameDataReplacedOld()
         {
@@ -190,6 +192,7 @@ namespace Tests
             }            
         }
 
+        [TestCategory("notCI")]
         [TestMethod]
         public void GithubHookConsumer_NothingInDb_WhenHandlingBadHook()
         {
@@ -227,6 +230,7 @@ namespace Tests
             }            
         }
 
+        [TestCategory("notCI")]
         [TestMethod]        
         public void GithubHookConsumer_DbHasCorrectData_WhenHandlingGoodHook()
         {
@@ -266,6 +270,7 @@ namespace Tests
             }
         }
 
+        [TestCategory("notCI")]
         [TestMethod]
         public void GithubHookConsumer_HandlingSameHookInParallelThreads_EachFileSavedOnlyOnce()
         {

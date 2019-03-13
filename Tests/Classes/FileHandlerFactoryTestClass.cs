@@ -29,7 +29,15 @@ namespace Tests.Classes
                 if (string.IsNullOrEmpty(token))
                 {
                     //token = ConfigurationManager.AppSettings["token"];
-                    token = File.ReadAllText("../../Data/token.txt");
+                    try
+                    {
+                        token = File.ReadAllText("../../Data/token.txt");
+                    }
+                    catch
+                    {
+                        token = "123";
+                    }
+                    
                 }
 
                 return token;
