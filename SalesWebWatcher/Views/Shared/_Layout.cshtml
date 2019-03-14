@@ -32,6 +32,13 @@
     <div class="container body-content">
         @RenderBody()
         <hr />
+        <footer>
+            @{
+                Version version = typeof(Sales.SalesWebWatcher.Controllers.HomeController).Assembly.GetName().Version;
+                string versionString = $"{version.ToString()}";
+            }
+            <p>SalesWebWatcher - @versionString</p>
+        </footer>
     </div>
 
     @Scripts.Render("~/bundles/jquery")
